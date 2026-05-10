@@ -1,15 +1,11 @@
-# AI Rules for Secure Deployment
+# Cursor Rules - Flip7Scores
 
-Always adhere to these security principles:
+## Contexte projet
+- Frontend React/TypeScript (Vite), backend Node.js dans `/server`
+- Stockage : LocalStorage côté client, synchronisé avec l'API NAS
+- Hébergé sur Synology NAS via Docker (variant `single`)
+- Déploiement : `./deploy.sh` (local) ou GitHub Actions (`push main`)
 
-1. **NO HARDCODING**: Never embed IP addresses, private domains (e.g., .synology.me), usernames, or secrets in the source code.
-2. **ENVIRONMENT VARIABLES**:
-    - Use `.env` for application config.
-    - Use `.env.deploy` for deployment scripts.
-    - Ensure `.gitignore` contains these files before creation.
-3. **GENERIC SCRIPTS**: Deployment scripts must source variables from local `.env` files and fail if they are missing.
-4. **AUDIT**: Before suggesting a commit, check for sensitive leaks using grep:
-    `grep -rE "([0-9]{1,3}\.){3}[0-9]{1,3}|(host|user|pass|secret|key|port|nas|token)" .`
-5. **CLEANUP**: If secrets were previously committed, guide the user through a git history purge (orphan branch or BFG).
-
-*Context: This project is deployed on a private NAS. Security is critical.*
+## Sécurité
+- Zéro hardcoding : pas d'IP, domaines privés ni secrets dans le code
+- Variables sensibles dans `.env` / `.env.deploy` (non commités)
