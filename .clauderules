@@ -3,10 +3,42 @@
 ## Contexte projet
 - Frontend React/TypeScript (Vite), backend Node.js dans `/server`
 - Stockage : LocalStorage côté client, synchronisé avec l'API NAS
-- Hébergé sur Synology NAS via Docker (variant `single` — app + API dans un seul container)
-- Déploiement : `./deploy.sh` (local) ou GitHub Actions (`push main`)
-- Templates de déploiement : https://github.com/Erisme/nas-deploy-templates
+- Hébergé sur Synology NAS via Docker — variant **`single`** (app + API dans un seul container)
+- Déploiement local : `./deploy.sh` | CI/CD : GitHub Actions sur push `main`
 
-## Standards
+## Source canonique de déploiement (OBLIGATOIRE)
+
+Tous les fichiers de déploiement de ce projet suivent le variant `single` du repo :
+**https://github.com/Erisme/nas-deploy-templates**
+
+Fichiers concernés et leur équivalent dans le template :
+
+| Fichier projet | Template de référence |
+|---|---|
+| `Dockerfile` | `templates/single/Dockerfile` |
+| `nginx.conf` | `templates/single/nginx.conf` |
+| `start.sh` | `templates/single/start.sh` |
+| `docker-compose.yml` | `templates/single/docker-compose.yml` |
+| `deploy.sh` | `templates/single/deploy.sh` |
+| `.github/workflows/deploy.yml` | `templates/single/github-workflow.yml` |
+| `.env.deploy.example` | `templates/common/.env.deploy.example` |
+| `.gitignore` | `templates/common/.gitignore` |
+
+### Règles pour tout LLM intervenant sur ce projet
+
+1. **Avant de modifier** un fichier de déploiement, consulter le template correspondant comme référence.
+2. **Pour une mise à jour** du workflow ou de la config Docker, cloner le repo de templates et comparer :
+   ```bash
+   git clone https://github.com/Erisme/nas-deploy-templates /tmp/nas-deploy-templates
+   ```
+3. **Ne jamais diverger** du template sans raison explicite liée au projet.
+4. Les placeholders `{{SLUG}}`, `{{IMAGE_NAME}}`, etc. sont résolus pour ce projet :
+   - `SLUG` = `flip7scores`
+   - `IMAGE_NAME` = `erisme/flip7scores-app`
+   - `CONTAINER_NAME` = `flip7scores-app`
+   - `APP_PORT` = `8082`
+   - `VOLUME_NAME` = `flip7-data`
+
+## Standards code
 - TypeScript strict — maintenir le typage strict
 - Commits conventionnels : `feat:`, `fix:`, `refactor:`, `chore:`
