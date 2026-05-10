@@ -1,0 +1,20 @@
+# Claude Project Rules - Flip7Scores
+
+## 🛡️ Security First
+- **Never** expose IP addresses, personal domains, or credentials in any response or code change.
+- **Mandatory**: Use environment variables (`.env`, `.env.deploy`) for all network and auth configurations.
+- **Verification**: Always check `.gitignore` before creating new configuration files.
+
+## 🚀 Deployment Workflow
+- **Script usage**: When asked to deploy, always use `./deploy.sh` and ensure `.env.deploy` is present.
+- **CI/CD**: Refer to `.github/workflows/deploy.yml` for the automated pipeline.
+- **NAS Context**: The app is hosted on a Synology NAS via Docker.
+
+## 🛠️ Code Standards
+- **React/TS**: Maintain strict typing.
+- **Storage**: LocalStorage is used for client-side, synced with the NAS API.
+- **Atomic Commits**: Suggest small, focused commits without including sensitive data.
+
+## 📖 Reference Documentation
+- Read `GEMINI.md` for core mandates.
+- Read `NAS_DEPLOYMENT.md` for deployment procedures.

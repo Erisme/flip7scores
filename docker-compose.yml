@@ -1,0 +1,17 @@
+services:
+
+  # ── App + API dans un seul container (évite les problèmes réseau Synology) ─
+  app:
+    image: ghcr.io/erisme/flip7scores-app:latest
+    container_name: flip7scores-app
+    ports:
+      - "8082:80"
+    environment:
+      PORT: 3002
+      ALLOWED_ORIGIN: "${ALLOWED_ORIGIN:-http://localhost:5173}"
+    volumes:
+      - flip7-data:/app/api/data
+    restart: unless-stopped
+
+volumes:
+  flip7-data:
