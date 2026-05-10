@@ -203,6 +203,7 @@ export default function ActiveGame() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [drafts, setDrafts] = useState<EntryDraft[]>([]);
   const [showSummary, setShowSummary] = useState(false);
+  const [showRounds, setShowRounds] = useState(false);
   const [editingTarget, setEditingTarget] = useState(false);
   const [targetDraft, setTargetDraft] = useState('');
 
@@ -251,6 +252,8 @@ export default function ActiveGame() {
 
     if (updatedGame.status === 'finished') {
       navigate(`/history/${updatedGame.id}`);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
@@ -323,12 +326,21 @@ export default function ActiveGame() {
 
       {/* Scoreboard */}
       <div className="scoreboard-container mb-16">
+        <div className="scoreboard-toggle-bar">
+          <span className="scoreboard-toggle-label">Détail des manches</span>
+          <button
+            className={`scoreboard-toggle-btn${showRounds ? ' active' : ''}`}
+            onClick={() => setShowRounds(v => !v)}
+          >
+            {showRounds ? 'Masquer' : 'Afficher'}
+          </button>
+        </div>
         <table className="scoreboard">
           <thead>
             <tr>
               <th>Joueur</th>
-              {game.rounds.map((_, i) => <th key={i}>T{i + 1}</th>)}
-              <th>Total</th>
+              {showRounds && game.rounds.map((_, i) => <th key={i}>T{i + 1}</th>)}
+              <th className="th-total">Score</th>
               <th>Restant</th>
             </tr>
           </thead>
@@ -358,10 +370,10 @@ export default function ActiveGame() {
                         </div>
                       </div>
                     </td>
-                    {game.rounds.map((round) => {
+                    {showRounds && game.rounds.map((round) => {
                       const e = round.entries.find(e => e.playerId === pid);
                       return (
-                        <td key={round.id} className={e?.busted ? 'score-bust' : ''}>
+                        <td key={round.id} className={e?.busted ? 'score-bust' : 'round-score-cell'}>
                           {e?.busted ? '💥' : `+${e?.roundScore ?? 0}`}
                         </td>
                       );

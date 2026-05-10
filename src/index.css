@@ -325,20 +325,20 @@ input:focus, select:focus {
   position: relative;
 }
 
-/* Couleur unique par numéro, comme sur les vraies cartes */
-.number-grid .num-btn:nth-child(1)  { --num-color: #64748b; } /* 0  */
-.number-grid .num-btn:nth-child(2)  { --num-color: #2563eb; } /* 1  */
-.number-grid .num-btn:nth-child(3)  { --num-color: #7c3aed; } /* 2  */
-.number-grid .num-btn:nth-child(4)  { --num-color: #16a34a; } /* 3  */
-.number-grid .num-btn:nth-child(5)  { --num-color: #db2777; } /* 4  */
-.number-grid .num-btn:nth-child(6)  { --num-color: #ea580c; } /* 5  */
-.number-grid .num-btn:nth-child(7)  { --num-color: #0284c7; } /* 6  */
-.number-grid .num-btn:nth-child(8)  { --num-color: #9333ea; } /* 7  FLIP 7 */
-.number-grid .num-btn:nth-child(9)  { --num-color: #dc2626; } /* 8  */
-.number-grid .num-btn:nth-child(10) { --num-color: #d97706; } /* 9  */
-.number-grid .num-btn:nth-child(11) { --num-color: #b91c1c; } /* 10 */
-.number-grid .num-btn:nth-child(12) { --num-color: #0d9488; } /* 11 */
-.number-grid .num-btn:nth-child(13) { --num-color: #15803d; } /* 12 */
+/* Couleur unique par numéro, comme sur les vraies cartes Flip 7 */
+.number-grid .num-btn:nth-child(1)  { --num-color: #64748b; } /* 0  gris     */
+.number-grid .num-btn:nth-child(2)  { --num-color: #7B5230; } /* 1  brun     */
+.number-grid .num-btn:nth-child(3)  { --num-color: #A8C020; } /* 2  jaune-vert */
+.number-grid .num-btn:nth-child(4)  { --num-color: #D01855; } /* 3  fuchsia  */
+.number-grid .num-btn:nth-child(5)  { --num-color: #35B5D5; } /* 4  bleu ciel */
+.number-grid .num-btn:nth-child(6)  { --num-color: #28A838; } /* 5  vert     */
+.number-grid .num-btn:nth-child(7)  { --num-color: #8B2898; } /* 6  violet   */
+.number-grid .num-btn:nth-child(8)  { --num-color: #D46880; } /* 7  saumon   FLIP 7 */
+.number-grid .num-btn:nth-child(9)  { --num-color: #78C250; } /* 8  vert clair */
+.number-grid .num-btn:nth-child(10) { --num-color: #D87818; } /* 9  orange   */
+.number-grid .num-btn:nth-child(11) { --num-color: #DD1515; } /* 10 rouge    */
+.number-grid .num-btn:nth-child(12) { --num-color: #6888C8; } /* 11 bleu pervenche */
+.number-grid .num-btn:nth-child(13) { --num-color: #9898A0; } /* 12 gris clair */
 
 .num-btn.selected {
   background: var(--num-color, var(--navy));
@@ -429,6 +429,43 @@ input:focus, select:focus {
   box-shadow: var(--shadow-gold);
 }
 
+.scoreboard-toggle-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: var(--cream-dark);
+  border-bottom: 1.5px solid var(--gold);
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.scoreboard-toggle-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--navy);
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.scoreboard-toggle-btn {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1.5px solid var(--navy);
+  background: transparent;
+  color: var(--navy);
+  cursor: pointer;
+  opacity: 0.55;
+  transition: all 0.15s;
+}
+.scoreboard-toggle-btn.active {
+  background: var(--navy);
+  color: white;
+  opacity: 1;
+}
+
 .scoreboard {
   width: 100%;
   border-collapse: collapse;
@@ -482,15 +519,29 @@ input:focus, select:focus {
   font-weight: 900;
 }
 
-/* Score total – colonne Total */
+/* Score total – colonne principale */
 .score-total-cell {
-  font-size: 1.05rem;
+  font-size: 1.55rem;
   font-weight: 900;
   color: var(--navy);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.th-total {
+  font-size: 0.85rem !important;
+}
+
+/* Scores de manches – discrets */
+.round-score-cell {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--navy);
+  opacity: 0.55;
 }
 
 /* Score d'un tour bust */
-.score-bust { color: var(--danger); }
+.score-bust { color: var(--danger); opacity: 0.8; font-size: 0.82rem; }
 
 /* ══════════════════════════════════════════════
    BARRE DE PROGRESSION
