@@ -24,12 +24,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push image (app + api)
+      - name: Build and push image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           tags: ghcr.io/erisme/flip7scores-app:latest
+
+      - name: Copy docker-compose.yml to NAS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.NAS_HOST }}
+          username: ${{ secrets.NAS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.NAS_PORT }}
+          source: "docker-compose.yml"
+          target: ${{ secrets.NAS_DEPLOY_PATH }}
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
@@ -44,8 +54,8 @@ jobs:
           envs: GHCR_TOKEN,GHCR_USER
           script: |
             export PATH=$PATH:/usr/local/bin:/usr/bin
+            mkdir -p ${{ secrets.NAS_DEPLOY_PATH }}
             docker login ghcr.io -u "$GHCR_USER" -p "$GHCR_TOKEN"
             cd ${{ secrets.NAS_DEPLOY_PATH }}
-            git pull
             docker compose pull
             docker compose up -d
