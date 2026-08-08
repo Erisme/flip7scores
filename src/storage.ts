@@ -103,6 +103,6 @@ export function calculateRoundScore(entry: Omit<PlayerRoundEntry, 'roundScore'>)
   if (entry.busted) return 0;
   const numTotal   = entry.numberCards.reduce((s, n) => s + n, 0);
   const bonusTotal = entry.bonusCards.reduce((s, v) => s + v, 0);
-  const base = numTotal + bonusTotal;
-  return entry.hasDouble ? base * 2 : base;
+  // ×2 ne double que les cartes Numéro ; bonus et +15 (Flip 7) s'ajoutent après
+  return numTotal * (entry.hasDouble ? 2 : 1) + bonusTotal + (entry.hasFlip7 ? 15 : 0);
 }

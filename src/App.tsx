@@ -11,7 +11,10 @@ import GameDetail from './pages/GameDetail';
 function Header() {
   return (
     <header className="app-header">
-      <NavLink to="/" className="logo">🃏 Flip 7</NavLink>
+      <NavLink to="/" className="logo">
+        <img src="/favicon.svg" alt="" style={{ width: 26, height: 26, verticalAlign: 'text-bottom', marginRight: 6 }} />
+        Flip 7
+      </NavLink>
       <nav>
         <NavLink to="/" end>🏠 <span>Accueil</span></NavLink>
         <NavLink to="/players">👥 <span>Joueurs</span></NavLink>
@@ -31,7 +34,7 @@ export default function App() {
   if (!synced) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', flexDirection: 'column', gap: 16 }}>
-        <div style={{ fontSize: '2.5rem' }}>🃏</div>
+        <img src="/favicon.svg" alt="Flip 7" style={{ width: 56, height: 56 }} />
         <div style={{ fontWeight: 800, color: 'var(--teal)', fontSize: '1.1rem' }}>Synchronisation…</div>
       </div>
     );

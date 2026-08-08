@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getGames, getPlayers, deleteGame } from '../storage';
+import { exportHistoryJson, exportHistoryCsv } from '../export';
 import { avatarColor, initials, formatDate, formatTime } from '../utils';
 
 export default function History() {
@@ -38,6 +39,15 @@ export default function History() {
       <div className="page-title">
         <h1>Historique</h1>
         <p>{games.length} partie{games.length > 1 ? 's' : ''} terminée{games.length > 1 ? 's' : ''}</p>
+      </div>
+
+      <div className="flex gap-8 mb-16">
+        <button className="btn btn-secondary btn-sm" onClick={exportHistoryJson}>
+          ⬇️ Exporter JSON
+        </button>
+        <button className="btn btn-secondary btn-sm" onClick={exportHistoryCsv}>
+          ⬇️ Exporter CSV
+        </button>
       </div>
 
       <div className="game-list">
