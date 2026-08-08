@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getGame, updateGame, calculateRoundScore, getPlayers, BONUS_CARD_VALUES } from '../storage';
+import { getGame, updateGame, calculateRoundScore, getPlayers, addPlayer, BONUS_CARD_VALUES } from '../storage';
 import type { Game, Player, PlayerRoundEntry, BonusCardValue } from '../types';
 import { avatarColor, initials } from '../utils';
 
@@ -196,6 +196,112 @@ function RoundSummaryModal({
   );
 }
 
+function AddPlayerModal({
+  existingIds, onClose, onAdd,
+}: {
+  existingIds: string[];
+  onClose: () => void;
+  onAdd: (player: Player, initialScore: number) => void;
+}) {
+  const [available, setAvailable] = useState<Player[]>(() =>
+    getPlayers().filter(p => !existingIds.includes(p.id))
+  );
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [newName, setNewName] = useState('');
+  const [scoreDraft, setScoreDraft] = useState('0');
+  const [error, setError] = useState('');
+
+  function handleCreate(e: React.FormEvent) {
+    e.preventDefault();
+    const trimmed = newName.trim();
+    if (!trimmed) { setError('Entrez un nom'); return; }
+    if (getPlayers().some(p => p.name.toLowerCase() === trimmed.toLowerCase())) {
+      setError('Ce joueur existe déjà'); return;
+    }
+    const player = addPlayer(trimmed);
+    setAvailable(prev => [...prev, player]);
+    setSelectedId(player.id);
+    setNewName('');
+    setError('');
+  }
+
+  function handleConfirm() {
+    const player = available.find(p => p.id === selectedId);
+    if (!player) return;
+    const initialScore = Math.max(0, parseInt(scoreDraft) || 0);
+    onAdd(player, initialScore);
+  }
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal">
+        <h2>➕ Ajouter un joueur</h2>
+
+        {available.length > 0 ? (
+          <div className="player-pick-grid mb-16">
+            {available.map(p => {
+              const isSelected = p.id === selectedId;
+              return (
+                <button
+                  key={p.id}
+                  className={`player-pick-card${isSelected ? ' selected' : ''}`}
+                  onClick={() => setSelectedId(isSelected ? null : p.id)}
+                >
+                  <div className="player-pick-avatar" style={{ background: avatarColor(p.name) }}>
+                    {initials(p.name)}
+                  </div>
+                  <span className="player-pick-name">{p.name}</span>
+                  {isSelected && <span className="player-pick-check">✓</span>}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-sm text-muted mb-16">Tous les joueurs existants sont déjà dans la partie.</p>
+        )}
+
+        <div className="field-label">Ou créer un nouveau joueur</div>
+        <form onSubmit={handleCreate} className="mb-16">
+          <div className="flex gap-8">
+            <input
+              type="text"
+              placeholder="Nom du joueur"
+              value={newName}
+              onChange={e => { setNewName(e.target.value); setError(''); }}
+              maxLength={30}
+              style={{ flex: 1 }}
+            />
+            <button type="submit" className="btn btn-secondary">Créer</button>
+          </div>
+          {error && <p className="text-sm mt-8" style={{ color: 'var(--danger)' }}>{error}</p>}
+        </form>
+
+        <div className="field-label">Score initial</div>
+        <input
+          type="number"
+          value={scoreDraft}
+          onChange={e => setScoreDraft(e.target.value)}
+          min={0} max={9999}
+          className="mb-16"
+          style={{ width: 100 }}
+        />
+
+        <div className="flex gap-8">
+          <button className="btn btn-secondary" onClick={onClose}>← Annuler</button>
+          <button
+            className="btn btn-primary"
+            style={{ flex: 1 }}
+            disabled={!selectedId}
+            onClick={handleConfirm}
+          >
+            Ajouter à la partie
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ActiveGame() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -203,6 +309,7 @@ export default function ActiveGame() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [drafts, setDrafts] = useState<EntryDraft[]>([]);
   const [showSummary, setShowSummary] = useState(false);
+  const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [showRounds, setShowRounds] = useState(false);
   const [editingTarget, setEditingTarget] = useState(false);
   const [targetDraft, setTargetDraft] = useState('');
@@ -255,6 +362,21 @@ export default function ActiveGame() {
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  }
+
+  function handleAddPlayer(player: Player, initialScore: number) {
+    if (!game) return;
+    const updated: Game = {
+      ...game,
+      playerIds: [...game.playerIds, player.id],
+      cumulativeScores: { ...game.cumulativeScores, [player.id]: initialScore },
+    };
+    updateGame(updated);
+    setGame(updated);
+    setPlayers(prev => [...prev, player]);
+    // push explicite : drafts est couplé à playerIds par index
+    setDrafts(prev => [...prev, initDraft(player.id)]);
+    setShowAddPlayer(false);
   }
 
   function handleTargetSave() {
@@ -407,12 +529,28 @@ export default function ActiveGame() {
       </div>
 
       <button
+        className="btn btn-ghost mt-16"
+        style={{ width: '100%' }}
+        onClick={() => setShowAddPlayer(true)}
+      >
+        ➕ Ajouter un joueur
+      </button>
+
+      <button
         className="btn btn-success btn-lg mt-24"
         style={{ width: '100%' }}
         onClick={handleValidateRound}
       >
         ✅ Valider le tour {game.rounds.length + 1}
       </button>
+
+      {showAddPlayer && (
+        <AddPlayerModal
+          existingIds={game.playerIds}
+          onClose={() => setShowAddPlayer(false)}
+          onAdd={handleAddPlayer}
+        />
+      )}
 
       {showSummary && (
         <RoundSummaryModal
