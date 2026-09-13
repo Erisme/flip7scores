@@ -5,57 +5,86 @@ on:
     branches:
       - main
 
+env:
+  IMAGE: ghcr.io/erisme/flip7scores-app
+
 jobs:
-  build-and-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     permissions:
       contents: read
       packages: write
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Log in to GitHub Container Registry
+      - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push image
-        uses: docker/build-push-action@v5
+      - name: Build & push image
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ghcr.io/erisme/flip7scores-app:latest
+          tags: ${{ env.IMAGE }}:latest
 
-      - name: Copy docker-compose.yml to NAS
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.NAS_HOST }}
-          username: ${{ secrets.NAS_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.NAS_PORT }}
-          source: "docker-compose.yml"
-          target: ${{ secrets.NAS_DEPLOY_PATH }}
-
-      - name: Deploy via SSH
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Bootstrap + déploiement NAS
         uses: appleboy/ssh-action@v1
         env:
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GHCR_USER: ${{ github.actor }}
+          NAS_DIR: ${{ vars.NAS_DIR }}
+          IMAGE: ${{ env.IMAGE }}
+          ALLOWED_ORIGIN: ${{ secrets.ALLOWED_ORIGIN }}
         with:
           host: ${{ secrets.NAS_HOST }}
           username: ${{ secrets.NAS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.NAS_PORT }}
-          envs: GHCR_TOKEN,GHCR_USER
+          envs: NAS_DIR,IMAGE,ALLOWED_ORIGIN
           script: |
-            export PATH=$PATH:/usr/local/bin:/usr/bin
-            mkdir -p ${{ secrets.NAS_DEPLOY_PATH }}
-            docker login ghcr.io -u "$GHCR_USER" -p "$GHCR_TOKEN"
-            cd ${{ secrets.NAS_DEPLOY_PATH }}
-            docker compose pull
-            docker compose up -d
+            set -e
+            mkdir -p "$NAS_DIR"
+
+            # Écrire docker-compose.yml via heredoc (pas de scp-action)
+            cat > "$NAS_DIR/docker-compose.yml" << 'COMPOSE'
+            services:
+              app:
+                image: ghcr.io/erisme/flip7scores-app:latest
+                container_name: flip7scores-app
+                ports:
+                  - "8082:80"
+                environment:
+                  PORT: 3002
+                  ALLOWED_ORIGIN: "${ALLOWED_ORIGIN:-http://localhost:5173}"
+                volumes:
+                  - flip7-data:/app/api/data
+                restart: unless-stopped
+
+            volumes:
+              flip7-data:
+            COMPOSE
+
+            echo "ALLOWED_ORIGIN=${ALLOWED_ORIGIN}" > "$NAS_DIR/.env"
+
+            # Synology : docker n'est pas dans le PATH SSH standard
+            DOCKER=$(command -v docker 2>/dev/null \
+              || echo /var/packages/ContainerManager/target/usr/bin/docker)
+
+            # Pull sans credentials cachés (package GHCR public)
+            DOCKER_CONFIG=$(mktemp -d)
+            export DOCKER_CONFIG
+            "$DOCKER" pull "$IMAGE:latest"
+            unset DOCKER_CONFIG
+
+            cd "$NAS_DIR"
+            if "$DOCKER" compose version >/dev/null 2>&1; then
+              "$DOCKER" compose up -d --remove-orphans
+            else
+              docker-compose up -d --remove-orphans
+            fi

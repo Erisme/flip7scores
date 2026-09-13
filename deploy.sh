@@ -1,15 +1,13 @@
 #!/bin/bash
 set -e
 
-# Charger les variables depuis .env.deploy si le fichier existe
 if [ -f .env.deploy ]; then
   export $(grep -v '^#' .env.deploy | xargs)
 fi
 
-# Vérification des variables requises
 if [ -z "$NAS_USER" ] || [ -z "$NAS_HOST" ] || [ -z "$NAS_PORT" ] || [ -z "$NAS_DIR" ]; then
   echo "❌ Erreur : Variables NAS_USER, NAS_HOST, NAS_PORT ou NAS_DIR non définies."
-  echo "Créez un fichier .env.deploy (voir .env.deploy.example) ou définissez-les dans votre environnement."
+  echo "Créez un fichier .env.deploy (voir .env.deploy.example)."
   exit 1
 fi
 
