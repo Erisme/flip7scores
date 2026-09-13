@@ -38,7 +38,8 @@ jobs:
       - name: Bootstrap + déploiement NAS
         uses: appleboy/ssh-action@v1
         env:
-          NAS_DIR: ${{ vars.NAS_DIR }}
+          # Compat migration : retombe sur l'ancien secret NAS_DEPLOY_PATH si la Variable n'existe pas encore
+          NAS_DIR: ${{ vars.NAS_DIR || secrets.NAS_DEPLOY_PATH }}
           IMAGE: ${{ env.IMAGE }}
           ALLOWED_ORIGIN: ${{ secrets.ALLOWED_ORIGIN }}
         with:
@@ -49,6 +50,10 @@ jobs:
           envs: NAS_DIR,IMAGE,ALLOWED_ORIGIN
           script: |
             set -e
+            if [ -z "$NAS_DIR" ]; then
+              echo "❌ NAS_DIR non défini (Settings → Variables → Actions)."
+              exit 1
+            fi
             mkdir -p "$NAS_DIR"
 
             # Écrire docker-compose.yml via heredoc (pas de scp-action)
@@ -70,7 +75,15 @@ jobs:
               flip7-data:
             COMPOSE
 
-            echo "ALLOWED_ORIGIN=${ALLOWED_ORIGIN}" > "$NAS_DIR/.env"
+            # Ne jamais écraser un .env existant avec une valeur vide (CORS casserait)
+            if [ -n "$ALLOWED_ORIGIN" ]; then
+              echo "ALLOWED_ORIGIN=${ALLOWED_ORIGIN}" > "$NAS_DIR/.env"
+            elif [ ! -f "$NAS_DIR/.env" ]; then
+              echo "ALLOWED_ORIGIN=" > "$NAS_DIR/.env"
+              echo "⚠️  Secret ALLOWED_ORIGIN absent : .env créé vide, CORS retombera sur le défaut."
+            else
+              echo "ℹ️  Secret ALLOWED_ORIGIN absent : .env existant du NAS conservé."
+            fi
 
             # Synology : docker n'est pas dans le PATH SSH standard
             DOCKER=$(command -v docker 2>/dev/null \
