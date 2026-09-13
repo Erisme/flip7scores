@@ -5,6 +5,7 @@
 - Stockage : LocalStorage côté client, synchronisé avec l'API NAS
 - Hébergé sur Synology NAS via Docker — variant **`single`** (app + API dans un seul container)
 - Déploiement local : `./deploy.sh` | CI/CD : GitHub Actions sur push `main`
+- Processus complet (tout assistant IA) : voir `AGENTS.md` et le skill `nas-deploy` du repo de templates
 
 ## Source canonique de déploiement (OBLIGATOIRE)
 
@@ -29,7 +30,7 @@ Fichiers concernés et leur équivalent dans le template :
 1. **Avant de modifier** un fichier de déploiement, consulter le template correspondant comme référence.
 2. **Pour une mise à jour** du workflow ou de la config Docker, cloner le repo de templates et comparer :
    ```bash
-   git clone https://github.com/Erisme/nas-deploy-templates /tmp/nas-deploy-templates
+   git clone https://github.com/Erisme/nas-deploy-templates /tmp/nas-deploy-templates   # ou ~/Documents/Sites/nas-deploy-templates
    ```
 3. **Ne jamais diverger** du template sans raison explicite liée au projet.
 4. Les placeholders `{{SLUG}}`, `{{IMAGE_NAME}}`, etc. sont résolus pour ce projet :
