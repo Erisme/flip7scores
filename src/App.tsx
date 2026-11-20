@@ -7,6 +7,7 @@ import NewGame from './pages/NewGame';
 import ActiveGame from './pages/ActiveGame';
 import History from './pages/History';
 import GameDetail from './pages/GameDetail';
+import { ClockCounterClockwise, House, Users } from '@phosphor-icons/react';
 
 function Header() {
   return (
@@ -16,9 +17,9 @@ function Header() {
         Flip 7
       </NavLink>
       <nav>
-        <NavLink to="/" end>🏠 <span>Accueil</span></NavLink>
-        <NavLink to="/players">👥 <span>Joueurs</span></NavLink>
-        <NavLink to="/history">📋 <span>Historique</span></NavLink>
+        <NavLink to="/" end><House /> <span>Accueil</span></NavLink>
+        <NavLink to="/players"><Users /> <span>Joueurs</span></NavLink>
+        <NavLink to="/history"><ClockCounterClockwise /> <span>Historique</span></NavLink>
       </nav>
     </header>
   );

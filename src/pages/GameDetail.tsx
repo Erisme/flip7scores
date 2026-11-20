@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getGame, getPlayers, gameVariant } from '../storage';
 import { avatarColor, initials, formatDate, formatTime, formatPts } from '../utils';
 import { useVariantTheme } from '../useVariantTheme';
+import { ArrowLeft, Bomb, Clover, DiceFive, Star, Trophy } from '@phosphor-icons/react';
 
 export default function GameDetail() {
   const { id } = useParams<{ id: string }>();
@@ -14,7 +15,7 @@ export default function GameDetail() {
     return (
       <div className="page">
         <p className="text-muted">Partie introuvable.</p>
-        <button className="btn btn-secondary mt-16" onClick={() => navigate('/history')}>← Retour</button>
+        <button className="btn btn-secondary mt-16" onClick={() => navigate('/history')}><ArrowLeft /> Retour</button>
       </div>
     );
   }
@@ -26,7 +27,7 @@ export default function GameDetail() {
 
   return (
     <div className="page">
-      <button className="btn btn-ghost btn-sm mb-16" onClick={() => navigate('/history')}>← Historique</button>
+      <button className="btn btn-ghost btn-sm mb-16" onClick={() => navigate('/history')}><ArrowLeft /> Historique</button>
 
       <div className="page-title">
         <h1>{game.name}</h1>
@@ -42,7 +43,7 @@ export default function GameDetail() {
       {/* Winners */}
       {winnerIds.length > 0 && (
         <div className="card mb-16" style={{ borderColor: 'rgba(245,166,35,0.4)', background: 'rgba(245,166,35,0.08)', textAlign: 'center', padding: '24px 16px' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>🏆</div>
+          <div style={{ marginBottom: 8, color: 'var(--gold-dark)' }}><Trophy size={44} weight="fill" /></div>
           <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent2)' }}>
             {winnerIds.map(id => allPlayers.find(p => p.id === id)?.name).filter(Boolean).join(' & ')}
           </div>
@@ -76,7 +77,7 @@ export default function GameDetail() {
                       </div>
                       <div>
                         <div className={isWinner ? 'score-leader' : ''}>
-                          {isWinner ? '🏆 ' : ''}{player!.name}
+                          {isWinner && <><Trophy weight="fill" /> </>}{player!.name}
                         </div>
                         <div className="progress-bar-wrap mt-8" style={{ width: 80 }}>
                           <div className="progress-bar-fill" style={{ width: `${pct}%`, background: avatarColor(player!.name) }} />
@@ -88,8 +89,8 @@ export default function GameDetail() {
                     const e = round.entries.find(e => e.playerId === pid);
                     return (
                       <td key={round.id} style={{ color: e?.busted ? 'var(--red)' : 'inherit' }}>
-                        {e?.busted ? '💥' : ''}{e?.busted && !e.roundScore ? '0' : formatPts(e?.roundScore ?? 0)}
-                        {e?.hasFlip7 ? ' ⭐' : ''}
+                        {e?.busted && <Bomb />}{e?.busted && !e.roundScore ? '0' : formatPts(e?.roundScore ?? 0)}
+                        {e?.hasFlip7 && <> <Star weight="fill" color="var(--purple)" /></>}
                       </td>
                     );
                   })}
@@ -124,13 +125,13 @@ export default function GameDetail() {
                         {(!entry.busted || (entry.minusCards?.length ?? 0) > 0) && (
                           <div className="text-sm text-muted">
                             {!entry.busted && <>Cartes: {entry.numberCards.join(', ') || '–'}</>}
-                            {entry.hasLucky13 ? ' · 🍀 Lucky 13' : ''}
+                            {entry.hasLucky13 && <> · <Clover /> Lucky 13</>}
                             {entry.hasDouble ? ' · ×2' : ''}
                             {entry.bonusCards.length > 0 ? ` · Bonus: ${entry.bonusCards.map(v => '+' + v).join(' ')}` : ''}
                             {(entry.minusCards?.length || entry.hasHalve)
                               ? ` · Modifs: ${[...(entry.minusCards ?? []).map(v => '−' + v), ...(entry.hasHalve ? ['÷2'] : [])].join(' ')}`
                               : ''}
-                            {entry.hasFlip7 ? ' · FLIP 7 ⭐' : ''}
+                            {entry.hasFlip7 && <> · FLIP 7 <Star weight="fill" color="var(--purple)" /></>}
                             {entry.hasFlip7 && entry.flip7TargetId
                               ? ` → −15 à ${allPlayers.find(p => p.id === entry.flip7TargetId)?.name ?? '?'}`
                               : ''}
@@ -139,7 +140,7 @@ export default function GameDetail() {
                       </div>
                     </div>
                     <div>
-                      {entry.busted && <span className="badge badge-red">BUST 💥</span>}
+                      {entry.busted && <span className="badge badge-red">BUST <Bomb /></span>}
                       {(!entry.busted || entry.roundScore !== 0) && (
                         <span className="font-bold" style={{ color: entry.roundScore < 0 ? 'var(--danger)' : 'var(--accent2)', marginLeft: 6 }}>
                           {formatPts(entry.roundScore)}
@@ -154,7 +155,7 @@ export default function GameDetail() {
       ))}
 
       <button className="btn btn-primary btn-lg mt-16" style={{ width: '100%' }} onClick={() => navigate('/new-game')}>
-        🎲 Nouvelle partie
+        <DiceFive /> Nouvelle partie
       </button>
     </div>
   );

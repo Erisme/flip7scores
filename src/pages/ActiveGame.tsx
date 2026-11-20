@@ -7,6 +7,7 @@ import {
 import type { Game, Player, PlayerRoundEntry, BonusCardValue } from '../types';
 import { avatarColor, initials, formatPts } from '../utils';
 import { useVariantTheme } from '../useVariantTheme';
+import { ArrowLeft, ArrowRight, Bomb, Check, CheckCircle, Clover, Confetti, PencilSimple, Target, Trophy, UserPlus, X } from '@phosphor-icons/react';
 
 const CLASSIC_NUMBER_CARDS   = Array.from({ length: 13 }, (_, i) => i); // 0..12
 const VENGEANCE_NUMBER_CARDS = Array.from({ length: 14 }, (_, i) => i); // 0..13
@@ -129,8 +130,8 @@ function PlayerEntry({
           {initials(player.name)}
         </div>
         <span className="entry-player-name">{player.name}</span>
-        {draft.hasFlip7 && <span className="badge badge-gold">FLIP 7 🎉</span>}
-        {draft.busted && <span className="badge badge-red">BUST 💥</span>}
+        {draft.hasFlip7 && <span className="badge badge-gold">FLIP 7 <Confetti /></span>}
+        {draft.busted && <span className="badge badge-red">BUST <Bomb /></span>}
         <span className="cumulative">{cumulative} pts</span>
       </div>
 
@@ -141,7 +142,7 @@ function PlayerEntry({
             className={`toggle-btn${draft.busted ? ' on-busted' : ''}`}
             onClick={toggleBusted}
           >
-            💥 {draft.busted ? 'Annuler bust' : 'Bust (doublon)'}
+            <Bomb /> {draft.busted ? 'Annuler bust' : 'Bust (doublon)'}
           </button>
         </div>
 
@@ -187,7 +188,7 @@ function PlayerEntry({
                       onClick={toggleLucky13}
                       title="Lucky 13 : autorise un second 13 sans sauter"
                     >
-                      🍀 Lucky 13 (deux 13)
+                      <Clover /> Lucky 13 (deux 13)
                     </button>
                   </div>
                   {draft.numberCards.includes(0) && !draft.hasFlip7 && (
@@ -244,7 +245,7 @@ function PlayerEntry({
             </div>
             <div style={{ fontSize: '0.78rem', color: 'var(--muted)', textAlign: 'right' }}>
               Total si validé : {totalIfRound} / {target} pts
-              {totalIfRound >= target && ' 🏆'}
+              {totalIfRound >= target && <> <Trophy weight="fill" color="var(--gold-dark)" /></>}
             </div>
           </>
         )}
@@ -276,7 +277,7 @@ function RoundSummaryModal({
   return (
     <div className="modal-overlay">
       <div className="modal">
-        <h2>{isGameOver ? '🏆 Fin de partie !' : `✅ Tour ${game.rounds.length + 1} terminé`}</h2>
+        <h2>{isGameOver ? <><Trophy weight="fill" /> Fin de partie !</> : <><CheckCircle /> Tour {game.rounds.length + 1} terminé</>}</h2>
         <div className="modal-score-list">
           {game.playerIds
             .slice()
@@ -305,13 +306,13 @@ function RoundSummaryModal({
         </div>
         {isGameOver ? (
           <button className="btn btn-success btn-lg" style={{ width: '100%' }} onClick={onNext}>
-            Voir les résultats 🏆
+            Voir les résultats <Trophy weight="fill" />
           </button>
         ) : (
           <div className="flex gap-8">
-            <button className="btn btn-secondary" onClick={onClose}>← Modifier</button>
+            <button className="btn btn-secondary" onClick={onClose}><ArrowLeft /> Modifier</button>
             <button className="btn btn-primary" style={{ flex: 1 }} onClick={onNext}>
-              Tour suivant →
+              Tour suivant <ArrowRight />
             </button>
           </div>
         )}
@@ -359,7 +360,7 @@ function AddPlayerModal({
   return (
     <div className="modal-overlay">
       <div className="modal">
-        <h2>➕ Ajouter un joueur</h2>
+        <h2><UserPlus /> Ajouter un joueur</h2>
 
         {available.length > 0 ? (
           <div className="player-pick-grid mb-16">
@@ -375,7 +376,7 @@ function AddPlayerModal({
                     {initials(p.name)}
                   </div>
                   <span className="player-pick-name">{p.name}</span>
-                  {isSelected && <span className="player-pick-check">✓</span>}
+                  {isSelected && <span className="player-pick-check"><Check /></span>}
                 </button>
               );
             })}
@@ -411,7 +412,7 @@ function AddPlayerModal({
         />
 
         <div className="flex gap-8">
-          <button className="btn btn-secondary" onClick={onClose}>← Annuler</button>
+          <button className="btn btn-secondary" onClick={onClose}><ArrowLeft /> Annuler</button>
           <button
             className="btn btn-primary"
             style={{ flex: 1 }}
@@ -554,8 +555,8 @@ export default function ActiveGame() {
                   style={{ width: 80, padding: '4px 8px', fontSize: '0.9rem' }}
                   placeholder={String(game.targetScore)}
                 />
-                <button className="btn-icon confirm" onClick={handleTargetSave} title="Valider">✓</button>
-                <button className="btn-icon" onClick={() => setEditingTarget(false)} title="Annuler">✕</button>
+                <button className="btn-icon confirm" onClick={handleTargetSave} title="Valider"><Check /></button>
+                <button className="btn-icon" onClick={() => setEditingTarget(false)} title="Annuler"><X /></button>
               </div>
             ) : (
               <button
@@ -563,7 +564,7 @@ export default function ActiveGame() {
                 onClick={() => { setTargetDraft(String(game.targetScore)); setEditingTarget(true); }}
                 title="Modifier l'objectif"
               >
-                🎯 {game.targetScore} pts ✏️
+                <Target /> {game.targetScore} pts <PencilSimple />
               </button>
             )}
           </div>
@@ -623,7 +624,7 @@ export default function ActiveGame() {
                       const e = round.entries.find(e => e.playerId === pid);
                       return (
                         <td key={round.id} className={e?.busted ? 'score-bust' : 'round-score-cell'}>
-                          {e?.busted && !e.roundScore ? '💥' : `${e?.busted ? '💥' : ''}${formatPts(e?.roundScore ?? 0)}`}
+                          {e?.busted && <Bomb />}{e?.busted && !e.roundScore ? '' : formatPts(e?.roundScore ?? 0)}
                         </td>
                       );
                     })}
@@ -662,7 +663,7 @@ export default function ActiveGame() {
         style={{ width: '100%' }}
         onClick={() => setShowAddPlayer(true)}
       >
-        ➕ Ajouter un joueur
+        <UserPlus /> Ajouter un joueur
       </button>
 
       <button
@@ -670,7 +671,7 @@ export default function ActiveGame() {
         style={{ width: '100%' }}
         onClick={handleValidateRound}
       >
-        ✅ Valider le tour {game.rounds.length + 1}
+        <CheckCircle /> Valider le tour {game.rounds.length + 1}
       </button>
 
       {showAddPlayer && (

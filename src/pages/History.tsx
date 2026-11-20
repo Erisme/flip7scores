@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getGames, getPlayers, deleteGame } from '../storage';
 import { exportHistoryJson, exportHistoryCsv } from '../export';
 import { avatarColor, initials, formatDate, formatTime } from '../utils';
+import { ClockCounterClockwise, DiceFive, DownloadSimple, Trash, Trophy } from '@phosphor-icons/react';
 
 export default function History() {
   const navigate = useNavigate();
@@ -24,10 +25,10 @@ export default function History() {
           <p>Toutes vos parties terminées</p>
         </div>
         <div className="empty-state">
-          <div className="icon">📋</div>
+          <div className="icon"><ClockCounterClockwise /></div>
           <p>Aucune partie terminée pour l'instant.</p>
           <button className="btn btn-primary" onClick={() => navigate('/new-game')}>
-            🎲 Nouvelle partie
+            <DiceFive /> Nouvelle partie
           </button>
         </div>
       </div>
@@ -43,10 +44,10 @@ export default function History() {
 
       <div className="flex gap-8 mb-16">
         <button className="btn btn-secondary btn-sm" onClick={exportHistoryJson}>
-          ⬇️ Exporter JSON
+          <DownloadSimple /> Exporter JSON
         </button>
         <button className="btn btn-secondary btn-sm" onClick={exportHistoryCsv}>
-          ⬇️ Exporter CSV
+          <DownloadSimple /> Exporter CSV
         </button>
       </div>
 
@@ -80,7 +81,7 @@ export default function History() {
                 </div>
                 {winners.length > 0 && (
                   <div className="text-sm mt-8" style={{ color: 'var(--accent2)' }}>
-                    🏆 {winners.map(w => w!.name).join(' & ')}
+                    <Trophy weight="fill" /> {winners.map(w => w!.name).join(' & ')}
                   </div>
                 )}
               </div>
@@ -91,7 +92,7 @@ export default function History() {
                   style={{ color: 'var(--red)', fontSize: '0.7rem' }}
                   onClick={e => handleDelete(game.id, e)}
                 >
-                  🗑️
+                  <Trash />
                 </button>
               </div>
             </div>

@@ -1090,3 +1090,12 @@ input:focus, select:focus {
 .theme-vengeance .score-preview { background: rgba(38,72,176,0.08); border-color: rgba(38,72,176,0.25); }
 .theme-vengeance input:focus,
 .theme-vengeance select:focus { box-shadow: 0 0 0 4px rgba(38,72,176,0.2); }
+
+/* ══════════════════════════════════════════════
+   ICÔNES (Phosphor)
+══════════════════════════════════════════════ */
+#root svg { vertical-align: -0.17em; flex-shrink: 0; }
+.app-header nav a { display: inline-flex; align-items: center; gap: 6px; }
+.badge { gap: 4px; }
+h2 svg { vertical-align: -0.2em; }
+.empty-state .icon svg { width: 3rem; height: 3rem; color: var(--teal); }
