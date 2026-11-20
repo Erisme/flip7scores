@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   getGame, updateGame, getPlayers, addPlayer, BONUS_CARD_VALUES, MINUS_CARD_VALUES,
@@ -7,6 +7,7 @@ import {
 import type { Game, Player, PlayerRoundEntry, BonusCardValue } from '../types';
 import { avatarColor, initials, formatPts } from '../utils';
 import { useVariantTheme } from '../useVariantTheme';
+import Flip7Celebration from '../components/Flip7Celebration';
 import { ArrowLeft, ArrowRight, Bomb, Check, CheckCircle, Clover, Confetti, PencilSimple, Target, Trophy, UserPlus, X } from '@phosphor-icons/react';
 
 const CLASSIC_NUMBER_CARDS   = Array.from({ length: 13 }, (_, i) => i); // 0..12
@@ -438,6 +439,11 @@ export default function ActiveGame() {
   const [showRounds, setShowRounds] = useState(false);
   const [editingTarget, setEditingTarget] = useState(false);
   const [targetDraft, setTargetDraft] = useState('');
+  const [celebration, setCelebration] = useState<string | null>(null);
+  const closeCelebration = useCallback(() => setCelebration(null), []);
+
+  // Précharge le GIF du Flip 7 pour qu'il s'affiche sans délai
+  useEffect(() => { const img = new Image(); img.src = '/flip7.gif'; }, []);
   useVariantTheme(game?.variant === 'vengeance');
 
   useEffect(() => {
@@ -648,7 +654,10 @@ export default function ActiveGame() {
               key={pid}
               player={player}
               draft={drafts[i] || initDraft(pid)}
-              onChange={d => setDrafts(prev => prev.map((x, j) => j === i ? d : x))}
+              onChange={d => {
+                if (d.hasFlip7 && !drafts[i]?.hasFlip7) setCelebration(player.name);
+                setDrafts(prev => prev.map((x, j) => j === i ? d : x));
+              }}
               cumulative={game.cumulativeScores[pid] || 0}
               target={game.targetScore}
               game={game}
@@ -681,6 +690,8 @@ export default function ActiveGame() {
           onAdd={handleAddPlayer}
         />
       )}
+
+      {celebration && <Flip7Celebration playerName={celebration} onDone={closeCelebration} />}
 
       {showSummary && (
         <RoundSummaryModal

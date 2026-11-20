@@ -1186,3 +1186,116 @@ h3 {
 @media (max-width: 480px) {
   .app-header .logo { font-size: 1.35rem; }
 }
+
+/* ══════════════════════════════════════════════
+   ANIMATION FLIP 7
+══════════════════════════════════════════════ */
+.flip7-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(40, 46, 124, 0.6);
+  cursor: pointer;
+  overflow: hidden;
+  animation: flip7-fade 0.25s ease-out;
+}
+
+.flip7-card {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 22px 18px;
+  max-width: 340px;
+  width: 100%;
+  background: var(--cream);
+  border: 4px solid var(--gold);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 0 2px var(--navy), inset 0 0 0 2px var(--navy), 0 12px 0 rgba(40,46,124,0.35);
+  animation: flip7-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+.flip7-title {
+  font-family: var(--font-display);
+  font-size: 2.8rem;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--gold);
+  -webkit-text-stroke: 6px var(--navy);
+  paint-order: stroke fill;
+  text-shadow: 4px 4px 0 var(--navy);
+  transform: rotate(-4deg);
+}
+
+.flip7-gif {
+  width: 100%;
+  max-width: 300px;
+  aspect-ratio: 300 / 242;
+  border: 2.5px solid var(--navy);
+  border-radius: 8px;
+  background: var(--teal-light);
+}
+
+.flip7-player {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: var(--navy);
+}
+
+.flip7-bonus {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1rem;
+  padding: 4px 14px 2px;
+  border: 2px solid var(--navy);
+  border-radius: 999px;
+  background: var(--lime);
+  color: var(--navy);
+}
+
+/* Paillettes */
+.flip7-glitter { position: absolute; inset: 0; pointer-events: none; }
+.glitter {
+  position: absolute;
+  top: -20px;
+  opacity: 0;
+  animation-name: glitter-fall, glitter-twinkle;
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: 1, infinite;
+  animation-fill-mode: forwards, none;
+}
+.glitter-dot    { border-radius: 50%; }
+.glitter-square { border-radius: 2px; }
+.glitter-star   { clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+
+@keyframes glitter-fall {
+  0%   { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+  85%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--drift), 105vh) rotate(540deg); }
+}
+@keyframes glitter-twinkle {
+  0%, 100% { filter: brightness(1); }
+  50%      { filter: brightness(1.6); }
+}
+@keyframes flip7-pop {
+  0%   { transform: scale(0.4) rotate(-8deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes flip7-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flip7-glitter { display: none; }
+  .flip7-overlay, .flip7-card { animation: none; }
+}
