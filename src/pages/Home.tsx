@@ -17,7 +17,7 @@ export default function Home() {
       </div>
 
       {activeGame && (
-        <div className="card mb-16">
+        <div className="card">
           <div className="flex-center gap-8 mb-8">
             <GameController size={22} />
             <h3>Partie en cours</h3>
@@ -32,7 +32,7 @@ export default function Home() {
         </div>
       )}
 
-      <div className="card mb-16">
+      <div className="card">
         <h2>Nouvelle partie</h2>
         <p className="text-sm text-muted mb-16">
           {players.length < 2
@@ -54,7 +54,7 @@ export default function Home() {
         )}
       </div>
 
-      <div className="flex gap-8">
+      <div className="flex gap-24">
         <div className="card" style={{ flex: 1, textAlign: 'center' }}>
           <div style={{ fontSize: '2.2rem', fontWeight: 900, fontFamily: 'var(--font-display)', lineHeight: 1 }}>{players.length}</div>
           <div className="text-sm text-muted mt-8">Joueurs</div>
@@ -65,18 +65,9 @@ export default function Home() {
         </div>
       </div>
 
-      <hr className="divider" />
-
-      <div className="card">
-        <h3 className="mb-8 flex-center gap-8"><BookOpen /> Rappel des règles</h3>
-        <ul className="text-sm text-muted" style={{ paddingLeft: 16, lineHeight: 1.8 }}>
-          <li><strong>Flip 7</strong> : Collectez 7 cartes Numéro différentes → <strong>+15 pts bonus</strong></li>
-          <li><strong>Bust</strong> : Doublon sur une carte Numéro → score 0 pour ce tour</li>
-          <li><strong>Carte ×2</strong> : Double la somme de vos cartes Numéro</li>
-          <li><strong>Cartes bonus</strong> : +2, +4, +6, +8, +10 ajoutés après le doublement</li>
-          <li><strong>Objectif</strong> : Atteindre le score cible en premier</li>
-        </ul>
-      </div>
+      <button className="btn btn-secondary" style={{ width: '100%' }} onClick={() => navigate('/rules')}>
+        <BookOpen /> Rappel des règles
+      </button>
     </div>
   );
 }

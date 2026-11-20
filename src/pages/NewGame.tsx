@@ -44,7 +44,7 @@ export default function NewGame() {
       </div>
 
       {/* Nom de la partie */}
-      <div className="card mb-16">
+      <div className="card">
         <label className="field-label">Nom de la partie (optionnel)</label>
         <input
           type="text"
@@ -56,7 +56,7 @@ export default function NewGame() {
       </div>
 
       {/* Version du jeu */}
-      <div className="card mb-16">
+      <div className="card">
         <h2>Version du jeu</h2>
         <div className="target-presets">
           <button
@@ -89,7 +89,7 @@ export default function NewGame() {
       </div>
 
       {/* Score cible */}
-      <div className="card mb-16">
+      <div className="card">
         <h2>Score à atteindre</h2>
         <div className="target-presets">
           {TARGET_PRESETS.map(t => (
@@ -108,15 +108,15 @@ export default function NewGame() {
           min={10} max={9999}
           value={customTarget}
           onChange={e => setCustomTarget(e.target.value)}
-          style={{ marginTop: 10 }}
+          className="mt-8"
         />
-        <div className="target-indicator" style={{ marginTop: 12 }}>
+        <div className="target-indicator" style={{ marginTop: 16 }}>
           <Target /> Score à atteindre : <strong>{finalTarget} pts</strong>
         </div>
       </div>
 
       {/* Sélection joueurs */}
-      <div className="card mb-24">
+      <div className="card">
         <h2>
           Joueurs
           {selected.length >= 2

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import {
   getGame, updateGame, getPlayers, addPlayer, BONUS_CARD_VALUES, MINUS_CARD_VALUES,
   entryScore, scoreRound, gameVariant,
@@ -7,6 +7,7 @@ import {
 import type { Game, Player, PlayerRoundEntry, BonusCardValue } from '../types';
 import { avatarColor, initials, formatPts } from '../utils';
 import { useVariantTheme } from '../useVariantTheme';
+import Flip7Celebration from '../components/Flip7Celebration';
 import { ArrowLeft, ArrowRight, Bomb, Check, CheckCircle, Clover, Confetti, PencilSimple, Target, Trophy, UserPlus, X } from '@phosphor-icons/react';
 
 const CLASSIC_NUMBER_CARDS   = Array.from({ length: 13 }, (_, i) => i); // 0..12
@@ -21,8 +22,13 @@ function initDraft(playerId: string): EntryDraft {
   };
 }
 
+// Couleur de chaque numéro, comme sur les cartes (mêmes teintes que .number-grid)
+const NUM_COLORS = ['#64748b', '#7B5230', '#A8C020', '#D01855', '#35B5D5', '#28A838', '#8B2898', '#D46880', '#78C250', '#D87818', '#DD1515', '#6888C8', '#9898A0', '#1f3fa8'];
+
+const isMobile = () => window.matchMedia('(max-width: 600px)').matches;
+
 function PlayerEntry({
-  player, draft, onChange, cumulative, target, game, opponents,
+  player, draft, onChange, cumulative, target, game, opponents, active, isLast, onActivate, onNext, onClose,
 }: {
   player: Player;
   draft: EntryDraft;
@@ -31,7 +37,20 @@ function PlayerEntry({
   target: number;
   game: Game;
   opponents: Player[];
+  /** Mobile : le clavier de saisie de ce joueur est ouvert */
+  active: boolean;
+  isLast: boolean;
+  onActivate: () => void;
+  onNext: () => void;
+  onClose: () => void;
 }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // Mobile : à l'ouverture du clavier, amène la fiche du joueur en haut de l'écran
+  useEffect(() => {
+    if (active && isMobile()) cardRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }, [active]);
+
   const isVengeance = gameVariant(game) === 'vengeance';
   const brutal = isVengeance && !!game.brutal;
   const preview = entryScore(game, draft);
@@ -97,6 +116,8 @@ function PlayerEntry({
   const statusClass = draft.busted ? 'busted' : draft.hasFlip7 ? 'flip7' : '';
   const totalIfRound = cumulative + preview;
   const thirteens = draft.numberCards.filter(n => n === 13).length;
+  const isEmpty = !draft.busted && draft.numberCards.length === 0 && draft.bonusCards.length === 0
+    && !draft.hasDouble && !draft.hasHalve && minusCards.length === 0;
 
   const minusRow = (
     <div>
@@ -124,8 +145,8 @@ function PlayerEntry({
   );
 
   return (
-    <div className={`entry-card ${statusClass}`}>
-      <div className="entry-header">
+    <div ref={cardRef} className={`entry-card ${statusClass}${active ? ' active' : ''}`}>
+      <div className="entry-header" onClick={onActivate}>
         <div className="player-avatar" style={{ background: avatarColor(player.name), width: 40, height: 40, fontSize: '0.95rem', border: '2.5px solid rgba(255,255,255,0.6)' }}>
           {initials(player.name)}
         </div>
@@ -135,7 +156,37 @@ function PlayerEntry({
         <span className="cumulative">{cumulative} pts</span>
       </div>
 
+      {/* Mobile : résumé compact, toucher pour ouvrir le clavier */}
+      <button className="entry-summary" onClick={onActivate}>
+        <span className="entry-chips">
+          {draft.busted && <span className="chip chip-bust">Bust</span>}
+          {[...draft.numberCards].sort((a, b) => a - b).map((n, i) => (
+            <span key={`${n}-${i}`} className="chip chip-num" style={{ '--num-color': NUM_COLORS[n] } as React.CSSProperties}>{n}</span>
+          ))}
+          {draft.hasLucky13 && <span className="chip chip-lucky"><Clover /></span>}
+          {draft.bonusCards.map(v => <span key={`b${v}`} className="chip chip-bonus">+{v}</span>)}
+          {draft.hasDouble && <span className="chip chip-bonus">×2</span>}
+          {draft.hasHalve && <span className="chip chip-minus">÷2</span>}
+          {minusCards.map(v => <span key={`m${v}`} className="chip chip-minus">−{v}</span>)}
+          {isEmpty && <span className="entry-summary-hint">Toucher pour saisir</span>}
+        </span>
+        <span className={`entry-summary-score${preview < 0 ? ' score-negative' : ''}`}>{formatPts(preview)}</span>
+      </button>
+
       <div className="entry-body">
+        {/* Mobile : barre du clavier */}
+        <div className="pad-bar">
+          <span className="pad-name">{player.name}</span>
+          <span className={`pad-score${preview < 0 ? ' score-negative' : ''}`}>{formatPts(preview)}</span>
+          <button className={`pad-btn pad-bust${draft.busted ? ' on' : ''}`} onClick={toggleBusted}>
+            <Bomb /> Bust
+          </button>
+          <button className="pad-btn pad-next" onClick={isLast ? onClose : onNext}>
+            {isLast ? <>OK <Check /></> : <>Suivant <ArrowRight /></>}
+          </button>
+          {!isLast && <button className="pad-btn pad-close" onClick={onClose} aria-label="Fermer le clavier"><X /></button>}
+        </div>
+
         {/* Status toggles */}
         <div className="toggle-row">
           <button
@@ -243,7 +294,7 @@ function PlayerEntry({
               <span className="text-muted text-sm">Score ce tour :</span>
               <span className={`score-val${preview < 0 ? ' score-negative' : ''}`}>{formatPts(preview)} pts</span>
             </div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--muted)', textAlign: 'right' }}>
+            <div className="entry-total" style={{ fontSize: '0.78rem', color: 'var(--muted)', textAlign: 'right' }}>
               Total si validé : {totalIfRound} / {target} pts
               {totalIfRound >= target && <> <Trophy weight="fill" color="var(--gold-dark)" /></>}
             </div>
@@ -429,32 +480,38 @@ function AddPlayerModal({
 
 export default function ActiveGame() {
   const { id } = useParams<{ id: string }>();
+  const game = getGame(id!);
+  if (!game) return <Navigate to="/" replace />;
+  if (game.status === 'finished') return <Navigate to={`/history/${game.id}`} replace />;
+  // key : repart d'un état neuf si on passe d'une partie à une autre
+  return <GameScreen key={game.id} initialGame={game} />;
+}
+
+function GameScreen({ initialGame }: { initialGame: Game }) {
   const navigate = useNavigate();
-  const [game, setGame] = useState<Game | null>(null);
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [drafts, setDrafts] = useState<EntryDraft[]>([]);
+  const [game, setGame] = useState<Game>(initialGame);
+  const [players, setPlayers] = useState<Player[]>(
+    () => getPlayers().filter(p => initialGame.playerIds.includes(p.id))
+  );
+  const [drafts, setDrafts] = useState<EntryDraft[]>(() => initialGame.playerIds.map(initDraft));
   const [showSummary, setShowSummary] = useState(false);
   const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [showRounds, setShowRounds] = useState(false);
   const [editingTarget, setEditingTarget] = useState(false);
   const [targetDraft, setTargetDraft] = useState('');
-  useVariantTheme(game?.variant === 'vengeance');
+  const [celebration, setCelebration] = useState<string | null>(null);
+  // Mobile : joueur dont le clavier de saisie est ouvert
+  const [activePid, setActivePid] = useState<string | null>(null);
+  const closeCelebration = useCallback(() => setCelebration(null), []);
 
-  useEffect(() => {
-    const g = getGame(id!);
-    if (!g) { navigate('/'); return; }
-    if (g.status === 'finished') { navigate(`/history/${g.id}`); return; }
-    const allPlayers = getPlayers();
-    setGame(g);
-    setPlayers(allPlayers.filter(p => g.playerIds.includes(p.id)));
-    setDrafts(g.playerIds.map(initDraft));
-  }, [id, navigate]);
-
-  if (!game) return null;
+  // Précharge la vidéo du Flip 7 pour qu'elle s'affiche sans délai
+  useEffect(() => { fetch('/flip7.mp4').catch(() => { /* hors ligne */ }); }, []);
+  useVariantTheme(game.variant === 'vengeance');
 
   const maxScore = Math.max(...game.playerIds.map(id => game.cumulativeScores[id] || 0));
 
   function handleValidateRound() {
+    setActivePid(null);
     setShowSummary(true);
   }
 
@@ -534,10 +591,10 @@ export default function ActiveGame() {
   }
 
   return (
-    <div className="page">
-      <div className="flex-center gap-8 mb-16">
+    <div className={`page${activePid ? ' pad-open' : ''}`}>
+      <div className="flex-center gap-8 mb-24">
         <div>
-          <h1 style={{ marginBottom: 2 }}>{game.name}</h1>
+          <h1 style={{ marginBottom: 4 }}>{game.name}</h1>
           <div className="flex-center gap-8" style={{ flexWrap: 'wrap' }}>
             {gameVariant(game) === 'vengeance' && <span className="badge badge-vengeance">Vengeance</span>}
             {game.brutal && <span className="badge badge-brutal">Brutal</span>}
@@ -575,7 +632,7 @@ export default function ActiveGame() {
       </div>
 
       {/* Scoreboard */}
-      <div className="scoreboard-container mb-16">
+      <div className="scoreboard-container mb-24">
         <div className="scoreboard-toggle-bar">
           <span className="scoreboard-toggle-label">Détail des manches</span>
           <button
@@ -648,18 +705,26 @@ export default function ActiveGame() {
               key={pid}
               player={player}
               draft={drafts[i] || initDraft(pid)}
-              onChange={d => setDrafts(prev => prev.map((x, j) => j === i ? d : x))}
+              onChange={d => {
+                if (d.hasFlip7 && !drafts[i]?.hasFlip7) setCelebration(player.name);
+                setDrafts(prev => prev.map((x, j) => j === i ? d : x));
+              }}
               cumulative={game.cumulativeScores[pid] || 0}
               target={game.targetScore}
               game={game}
               opponents={players.filter(p => p.id !== pid)}
+              active={activePid === pid}
+              isLast={i === game.playerIds.length - 1}
+              onActivate={() => setActivePid(pid)}
+              onNext={() => setActivePid(game.playerIds[i + 1] ?? null)}
+              onClose={() => setActivePid(null)}
             />
           );
         })}
       </div>
 
       <button
-        className="btn btn-ghost mt-16"
+        className="btn btn-ghost mt-24"
         style={{ width: '100%' }}
         onClick={() => setShowAddPlayer(true)}
       >
@@ -679,6 +744,14 @@ export default function ActiveGame() {
           existingIds={game.playerIds}
           onClose={() => setShowAddPlayer(false)}
           onAdd={handleAddPlayer}
+        />
+      )}
+
+      {celebration && (
+        <Flip7Celebration
+          playerName={celebration}
+          bonusLabel={game.brutal ? '+15 ou −15 à un adversaire' : '+15 points'}
+          onDone={closeCelebration}
         />
       )}
 

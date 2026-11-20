@@ -42,7 +42,7 @@ export default function GameDetail() {
 
       {/* Winners */}
       {winnerIds.length > 0 && (
-        <div className="card mb-16" style={{ textAlign: 'center', padding: '24px 16px' }}>
+        <div className="card" style={{ textAlign: 'center' }}>
           <div style={{ marginBottom: 8, color: 'var(--gold-dark)' }}><Trophy size={44} weight="fill" /></div>
           <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent2)' }}>
             {winnerIds.map(id => allPlayers.find(p => p.id === id)?.name).filter(Boolean).join(' & ')}
@@ -52,7 +52,7 @@ export default function GameDetail() {
       )}
 
       {/* Scoreboard */}
-      <div className="card mb-16" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         <table className="scoreboard">
           <thead>
             <tr>
@@ -105,7 +105,7 @@ export default function GameDetail() {
       {/* Round details */}
       <h2>Détail des tours</h2>
       {game.rounds.map(round => (
-        <div key={round.id} className="card mb-8">
+        <div key={round.id} className="card">
           <h3 className="mb-8">Tour {round.roundNumber}</h3>
           <div className="player-list">
             {round.entries
@@ -142,7 +142,7 @@ export default function GameDetail() {
                     <div>
                       {entry.busted && <span className="badge badge-red">BUST <Bomb /></span>}
                       {(!entry.busted || entry.roundScore !== 0) && (
-                        <span className="font-bold" style={{ color: entry.roundScore < 0 ? 'var(--danger)' : 'var(--accent2)', marginLeft: 6 }}>
+                        <span className="font-bold" style={{ color: entry.roundScore < 0 ? 'var(--danger)' : 'var(--accent2)', marginLeft: 8 }}>
                           {formatPts(entry.roundScore)}
                         </span>
                       )}
@@ -154,7 +154,7 @@ export default function GameDetail() {
         </div>
       ))}
 
-      <button className="btn btn-primary btn-lg mt-16" style={{ width: '100%' }} onClick={() => navigate('/new-game')}>
+      <button className="btn btn-primary btn-lg mt-24" style={{ width: '100%' }} onClick={() => navigate('/new-game')}>
         <DiceFive /> Nouvelle partie
       </button>
     </div>
