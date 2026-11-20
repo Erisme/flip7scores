@@ -7,7 +7,8 @@ import NewGame from './pages/NewGame';
 import ActiveGame from './pages/ActiveGame';
 import History from './pages/History';
 import GameDetail from './pages/GameDetail';
-import { ClockCounterClockwise, House, Users } from '@phosphor-icons/react';
+import Rules from './pages/Rules';
+import { BookOpen, ClockCounterClockwise, House, Users } from '@phosphor-icons/react';
 
 function Header() {
   return (
@@ -20,6 +21,7 @@ function Header() {
         <NavLink to="/" end><House /> <span>Accueil</span></NavLink>
         <NavLink to="/players"><Users /> <span>Joueurs</span></NavLink>
         <NavLink to="/history"><ClockCounterClockwise /> <span>Historique</span></NavLink>
+        <NavLink to="/rules"><BookOpen /> <span>Règles</span></NavLink>
       </nav>
     </header>
   );
@@ -52,6 +54,7 @@ export default function App() {
           <Route path="/game/:id" element={<ActiveGame />} />
           <Route path="/history" element={<History />} />
           <Route path="/history/:id" element={<GameDetail />} />
+          <Route path="/rules" element={<Rules />} />
         </Routes>
       </div>
     </BrowserRouter>

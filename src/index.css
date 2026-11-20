@@ -1311,3 +1311,12 @@ h3 {
   .flip7-glitter { display: none; }
   .flip7-overlay, .flip7-card { animation: none; }
 }
+
+/* Page Règles */
+.rules-list {
+  padding-left: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  line-height: 1.5;
+}

@@ -65,18 +65,9 @@ export default function Home() {
         </div>
       </div>
 
-      <hr className="divider" />
-
-      <div className="card">
-        <h3 className="mb-8 flex-center gap-8"><BookOpen /> Rappel des règles</h3>
-        <ul className="text-sm text-muted" style={{ paddingLeft: 16, lineHeight: 1.8 }}>
-          <li><strong>Flip 7</strong> : Collectez 7 cartes Numéro différentes → <strong>+15 pts bonus</strong></li>
-          <li><strong>Bust</strong> : Doublon sur une carte Numéro → score 0 pour ce tour</li>
-          <li><strong>Carte ×2</strong> : Double la somme de vos cartes Numéro</li>
-          <li><strong>Cartes bonus</strong> : +2, +4, +6, +8, +10 ajoutés après le doublement</li>
-          <li><strong>Objectif</strong> : Atteindre le score cible en premier</li>
-        </ul>
-      </div>
+      <button className="btn btn-secondary" style={{ width: '100%' }} onClick={() => navigate('/rules')}>
+        <BookOpen /> Rappel des règles
+      </button>
     </div>
   );
 }
