@@ -1,34 +1,65 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getGame, updateGame, calculateRoundScore, getPlayers, addPlayer, BONUS_CARD_VALUES } from '../storage';
+import {
+  getGame, updateGame, getPlayers, addPlayer, BONUS_CARD_VALUES, MINUS_CARD_VALUES,
+  entryScore, scoreRound, gameVariant,
+} from '../storage';
 import type { Game, Player, PlayerRoundEntry, BonusCardValue } from '../types';
-import { avatarColor, initials } from '../utils';
+import { avatarColor, initials, formatPts } from '../utils';
+import { useVariantTheme } from '../useVariantTheme';
 
-const NUMBER_CARDS = Array.from({ length: 13 }, (_, i) => i); // 0..12
+const CLASSIC_NUMBER_CARDS   = Array.from({ length: 13 }, (_, i) => i); // 0..12
+const VENGEANCE_NUMBER_CARDS = Array.from({ length: 14 }, (_, i) => i); // 0..13
 
 type EntryDraft = Omit<PlayerRoundEntry, 'roundScore'>;
 
 function initDraft(playerId: string): EntryDraft {
-  return { playerId, numberCards: [], bonusCards: [], hasDouble: false, hasFlip7: false, busted: false };
+  return {
+    playerId, numberCards: [], bonusCards: [], hasDouble: false, hasFlip7: false, busted: false,
+    minusCards: [], hasHalve: false, hasLucky13: false,
+  };
 }
 
 function PlayerEntry({
-  player, draft, onChange, cumulative, target,
+  player, draft, onChange, cumulative, target, game, opponents,
 }: {
   player: Player;
   draft: EntryDraft;
   onChange: (d: EntryDraft) => void;
   cumulative: number;
   target: number;
+  game: Game;
+  opponents: Player[];
 }) {
-  const preview = calculateRoundScore(draft as PlayerRoundEntry);
+  const isVengeance = gameVariant(game) === 'vengeance';
+  const brutal = isVengeance && !!game.brutal;
+  const preview = entryScore(game, draft);
+  const numberCards = isVengeance ? VENGEANCE_NUMBER_CARDS : CLASSIC_NUMBER_CARDS;
+  const minusCards = draft.minusCards ?? [];
+
+  function withCards(next: number[], extra: Partial<EntryDraft> = {}): EntryDraft {
+    const hasFlip7 = next.length === 7;
+    return { ...draft, ...extra, numberCards: next, hasFlip7, busted: false, flip7TargetId: hasFlip7 ? draft.flip7TargetId : undefined };
+  }
 
   function toggleNumber(n: number) {
     if (draft.busted) return;
     const has = draft.numberCards.includes(n);
-    const next = has ? draft.numberCards.filter(x => x !== n) : [...draft.numberCards, n];
-    const hasFlip7 = next.length === 7;
-    onChange({ ...draft, numberCards: next, hasFlip7, busted: false });
+    if (has) {
+      // Retirer un 13 retire aussi le Lucky 13 (les deux 13)
+      const lucky = n === 13 ? { hasLucky13: false } : {};
+      onChange(withCards(draft.numberCards.filter(x => x !== n), lucky));
+    } else {
+      onChange(withCards([...draft.numberCards, n]));
+    }
+  }
+
+  function toggleLucky13() {
+    if (draft.busted) return;
+    const others = draft.numberCards.filter(x => x !== 13);
+    onChange(draft.hasLucky13
+      ? withCards([...others, 13], { hasLucky13: false })
+      : withCards([...others, 13, 13], { hasLucky13: true }));
   }
 
   function toggleBonus(v: BonusCardValue) {
@@ -42,16 +73,54 @@ function PlayerEntry({
     onChange({ ...draft, hasDouble: !draft.hasDouble });
   }
 
+  function toggleMinus(v: number) {
+    if (draft.busted && !brutal) return;
+    const has = minusCards.includes(v);
+    onChange({ ...draft, minusCards: has ? minusCards.filter(x => x !== v) : [...minusCards, v] });
+  }
+
+  function toggleHalve() {
+    if (draft.busted) return;
+    onChange({ ...draft, hasHalve: !draft.hasHalve });
+  }
+
   function toggleBusted() {
     if (draft.busted) {
       onChange(initDraft(player.id));
     } else {
-      onChange({ ...initDraft(player.id), busted: true });
+      // Mode Brutal : un joueur sauté peut encore recevoir des modificateurs
+      onChange({ ...initDraft(player.id), busted: true, minusCards: brutal ? minusCards : [] });
     }
   }
 
   const statusClass = draft.busted ? 'busted' : draft.hasFlip7 ? 'flip7' : '';
   const totalIfRound = cumulative + preview;
+  const thirteens = draft.numberCards.filter(n => n === 13).length;
+
+  const minusRow = (
+    <div>
+      <div className="section-label">Modificateurs</div>
+      <div className="bonus-row">
+        {MINUS_CARD_VALUES.map(v => (
+          <button
+            key={v}
+            className={`bonus-btn minus-btn${minusCards.includes(v) ? ' selected' : ''}`}
+            onClick={() => toggleMinus(v)}
+          >
+            −{v}
+          </button>
+        ))}
+        {!draft.busted && (
+          <button
+            className={`bonus-btn minus-btn${draft.hasHalve ? ' selected' : ''}`}
+            onClick={toggleHalve}
+          >
+            ÷2
+          </button>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <div className={`entry-card ${statusClass}`}>
@@ -76,50 +145,102 @@ function PlayerEntry({
           </button>
         </div>
 
+        {draft.busted && brutal && (
+          <>
+            {minusRow}
+            <div className="score-preview">
+              <span className="text-muted text-sm">Score ce tour :</span>
+              <span className={`score-val${preview < 0 ? ' score-negative' : ''}`}>{formatPts(preview)} pts</span>
+            </div>
+          </>
+        )}
+
         {!draft.busted && (
           <>
             {/* Number cards */}
             <div>
               <div className="section-label">Cartes Numéro ({draft.numberCards.length}/7)</div>
               <div className="number-grid">
-                {NUMBER_CARDS.map(n => (
+                {numberCards.map(n => (
                   <button
                     key={n}
                     className={`num-btn${draft.numberCards.includes(n) ? ' selected' : ''}`}
                     onClick={() => toggleNumber(n)}
+                    title={isVengeance && n === 0 ? 'The Zero : score du tour à 0 sauf Flip 7' : undefined}
                   >
                     {n}
+                    {isVengeance && n === 0 && <span className="num-tag">Zero</span>}
+                    {n === 13 && thirteens === 2 && <span className="num-tag">×2</span>}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Bonus cards */}
-            <div>
-              <div className="section-label">Cartes Bonus</div>
-              <div className="bonus-row">
-                {BONUS_CARD_VALUES.map(v => (
+            {isVengeance ? (
+              <>
+                {/* Cartes spéciales */}
+                <div>
+                  <div className="section-label">Carte spéciale</div>
+                  <div className="bonus-row">
+                    <button
+                      className={`bonus-btn lucky-btn${draft.hasLucky13 ? ' selected' : ''}`}
+                      onClick={toggleLucky13}
+                      title="Lucky 13 : autorise un second 13 sans sauter"
+                    >
+                      🍀 Lucky 13 (deux 13)
+                    </button>
+                  </div>
+                  {draft.numberCards.includes(0) && !draft.hasFlip7 && (
+                    <p className="text-sm text-muted">The Zero : score du tour à 0 sauf Flip 7.</p>
+                  )}
+                </div>
+
+                {minusRow}
+
+                {/* Brutal : Flip 7 → +15 ou −15 à un adversaire */}
+                {brutal && draft.hasFlip7 && (
+                  <div>
+                    <div className="section-label">Bonus Flip 7</div>
+                    <select
+                      value={draft.flip7TargetId ?? ''}
+                      onChange={e => onChange({ ...draft, flip7TargetId: e.target.value || undefined })}
+                    >
+                      <option value="">+15 pour moi</option>
+                      {opponents.map(o => (
+                        <option key={o.id} value={o.id}>−15 à {o.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </>
+            ) : (
+              /* Bonus cards */
+              <div>
+                <div className="section-label">Cartes Bonus</div>
+                <div className="bonus-row">
+                  {BONUS_CARD_VALUES.map(v => (
+                    <button
+                      key={v}
+                      className={`bonus-btn${draft.bonusCards.includes(v) ? ' selected' : ''}`}
+                      onClick={() => toggleBonus(v)}
+                    >
+                      +{v}
+                    </button>
+                  ))}
                   <button
-                    key={v}
-                    className={`bonus-btn${draft.bonusCards.includes(v) ? ' selected' : ''}`}
-                    onClick={() => toggleBonus(v)}
+                    className={`bonus-btn double-btn${draft.hasDouble ? ' selected' : ''}`}
+                    onClick={toggleDouble}
                   >
-                    +{v}
+                    ×2
                   </button>
-                ))}
-                <button
-                  className={`bonus-btn double-btn${draft.hasDouble ? ' selected' : ''}`}
-                  onClick={toggleDouble}
-                >
-                  ×2
-                </button>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Score preview */}
             <div className="score-preview">
               <span className="text-muted text-sm">Score ce tour :</span>
-              <span className="score-val">{preview} pts</span>
+              <span className={`score-val${preview < 0 ? ' score-negative' : ''}`}>{formatPts(preview)} pts</span>
             </div>
             <div style={{ fontSize: '0.78rem', color: 'var(--muted)', textAlign: 'right' }}>
               Total si validé : {totalIfRound} / {target} pts
@@ -141,7 +262,7 @@ function RoundSummaryModal({
   onClose: () => void;
   onNext: () => void;
 }) {
-  const entries = drafts.map(d => ({ ...d, roundScore: calculateRoundScore(d) }));
+  const entries = scoreRound(game, drafts);
   const newTotals = Object.fromEntries(
     game.playerIds.map(id => {
       const e = entries.find(x => x.playerId === id);
@@ -173,7 +294,10 @@ function RoundSummaryModal({
                   <span className={isLeader ? 'score-leader' : ''}>{player!.name}</span>
                   {entry?.busted && <span className="badge badge-red">BUST</span>}
                   {entry?.hasFlip7 && <span className="badge badge-gold">FLIP 7</span>}
-                  <span className="round-pts ml-auto">+{roundPts}</span>
+                  {entry?.hasFlip7 && entry.flip7TargetId && (
+                    <span className="text-sm text-muted">→ −15 à {players.find(p => p.id === entry.flip7TargetId)?.name}</span>
+                  )}
+                  <span className={`round-pts ml-auto${roundPts < 0 ? ' score-negative' : ''}`}>{formatPts(roundPts)}</span>
                   <span className="total-pts">= {newTotals[id]} pts</span>
                 </div>
               );
@@ -313,6 +437,7 @@ export default function ActiveGame() {
   const [showRounds, setShowRounds] = useState(false);
   const [editingTarget, setEditingTarget] = useState(false);
   const [targetDraft, setTargetDraft] = useState('');
+  useVariantTheme(game?.variant === 'vengeance');
 
   useEffect(() => {
     const g = getGame(id!);
@@ -334,7 +459,7 @@ export default function ActiveGame() {
 
   function handleNextRound() {
     if (!game) return;
-    const entries = drafts.map(d => ({ ...d, roundScore: calculateRoundScore(d) }));
+    const entries = scoreRound(game, drafts);
     const newCumulative = { ...game.cumulativeScores };
     entries.forEach(e => { newCumulative[e.playerId] = (newCumulative[e.playerId] || 0) + e.roundScore; });
 
@@ -413,6 +538,8 @@ export default function ActiveGame() {
         <div>
           <h1 style={{ marginBottom: 2 }}>{game.name}</h1>
           <div className="flex-center gap-8" style={{ flexWrap: 'wrap' }}>
+            {gameVariant(game) === 'vengeance' && <span className="badge badge-vengeance">Vengeance</span>}
+            {game.brutal && <span className="badge badge-brutal">Brutal</span>}
             <span className="text-sm text-muted">Tour {game.rounds.length + 1}</span>
             <span className="text-sm text-muted">·</span>
             {editingTarget ? (
@@ -476,7 +603,7 @@ export default function ActiveGame() {
                 const total = game.cumulativeScores[pid] || 0;
                 const isLeader = total === maxScore && maxScore > 0;
                 const remaining = Math.max(0, game.targetScore - total);
-                const pct = Math.min(100, (total / game.targetScore) * 100);
+                const pct = Math.max(0, Math.min(100, (total / game.targetScore) * 100));
                 return (
                   <tr key={pid} className={isLeader ? 'leader-row' : ''}>
                     <td className="player-col">
@@ -496,7 +623,7 @@ export default function ActiveGame() {
                       const e = round.entries.find(e => e.playerId === pid);
                       return (
                         <td key={round.id} className={e?.busted ? 'score-bust' : 'round-score-cell'}>
-                          {e?.busted ? '💥' : `+${e?.roundScore ?? 0}`}
+                          {e?.busted && !e.roundScore ? '💥' : `${e?.busted ? '💥' : ''}${formatPts(e?.roundScore ?? 0)}`}
                         </td>
                       );
                     })}
@@ -523,6 +650,8 @@ export default function ActiveGame() {
               onChange={d => setDrafts(prev => prev.map((x, j) => j === i ? d : x))}
               cumulative={game.cumulativeScores[pid] || 0}
               target={game.targetScore}
+              game={game}
+              opponents={players.filter(p => p.id !== pid)}
             />
           );
         })}

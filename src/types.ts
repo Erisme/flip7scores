@@ -6,6 +6,9 @@ export interface Player {
 
 export type BonusCardValue = 2 | 4 | 6 | 8 | 10;
 
+/** Version du jeu : classique ou « With a Vengeance » (Soif de vengeance) */
+export type GameVariant = 'classic' | 'vengeance';
+
 export interface PlayerRoundEntry {
   playerId: string;
   numberCards: number[];
@@ -14,6 +17,15 @@ export interface PlayerRoundEntry {
   hasFlip7: boolean;
   busted: boolean;
   roundScore: number;
+  // ── Vengeance uniquement (absents/ignorés en classique) ──
+  /** Modificateurs négatifs reçus (valeurs absolues : 2, 4, 6, 8, 10) */
+  minusCards?: number[];
+  /** Modificateur ÷2 */
+  hasHalve?: boolean;
+  /** Lucky 13 : autorise un second 13 (présent deux fois dans numberCards) */
+  hasLucky13?: boolean;
+  /** Mode Brutal : sur Flip 7, retire 15 pts à ce joueur au lieu de gagner +15 */
+  flip7TargetId?: string;
 }
 
 export interface Round {
@@ -33,4 +45,8 @@ export interface Game {
   finishedAt?: number;
   winnerIds?: string[];
   status: 'active' | 'finished';
+  /** Absent sur les anciennes parties ⇒ 'classic' */
+  variant?: GameVariant;
+  /** Mode Brutal (Vengeance uniquement) */
+  brutal?: boolean;
 }

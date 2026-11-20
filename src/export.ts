@@ -31,6 +31,8 @@ export function exportHistoryJson(): void {
     startedAt: new Date(g.startedAt).toISOString(),
     finishedAt: g.finishedAt ? new Date(g.finishedAt).toISOString() : null,
     targetScore: g.targetScore,
+    variant: g.variant ?? 'classic',
+    brutal: !!g.brutal,
     players: g.playerIds.map(nameOf),
     winners: (g.winnerIds ?? []).map(nameOf),
     finalScores: Object.fromEntries(g.playerIds.map(id => [nameOf(id), g.cumulativeScores[id] ?? 0])),
@@ -43,6 +45,10 @@ export function exportHistoryJson(): void {
         hasDouble: e.hasDouble,
         hasFlip7: e.hasFlip7,
         busted: e.busted,
+        minusCards: e.minusCards ?? [],
+        hasHalve: !!e.hasHalve,
+        hasLucky13: !!e.hasLucky13,
+        flip7Target: e.flip7TargetId ? nameOf(e.flip7TargetId) : null,
         roundScore: e.roundScore,
       })),
     })),
@@ -58,7 +64,7 @@ export function exportHistoryCsv(): void {
     return /[";\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const rows: string[] = [
-    ['partie', 'date', 'objectif', 'tour', 'joueur', 'cartes_numero', 'cartes_bonus', 'x2', 'flip7', 'bust', 'score_tour', 'score_final', 'vainqueur'].join(';'),
+    ['partie', 'date', 'version', 'objectif', 'tour', 'joueur', 'cartes_numero', 'cartes_bonus', 'x2', 'modificateurs', 'div2', 'lucky13', 'flip7', 'flip7_cible', 'bust', 'score_tour', 'score_final', 'vainqueur'].join(';'),
   ];
   for (const g of finishedGames()) {
     const date = new Date(g.startedAt).toISOString().slice(0, 10);
@@ -67,13 +73,18 @@ export function exportHistoryCsv(): void {
         rows.push([
           esc(g.name),
           date,
+          (g.variant ?? 'classic') + (g.brutal ? ' brutal' : ''),
           g.targetScore,
           r.roundNumber,
           esc(nameOf(e.playerId)),
           esc(e.numberCards.join('+')),
           esc(e.bonusCards.map(v => `+${v}`).join(' ')),
           e.hasDouble ? 'oui' : 'non',
+          esc((e.minusCards ?? []).map(v => `-${v}`).join(' ')),
+          e.hasHalve ? 'oui' : 'non',
+          e.hasLucky13 ? 'oui' : 'non',
           e.hasFlip7 ? 'oui' : 'non',
+          esc(e.flip7TargetId ? nameOf(e.flip7TargetId) : ''),
           e.busted ? 'oui' : 'non',
           e.roundScore,
           g.cumulativeScores[e.playerId] ?? 0,

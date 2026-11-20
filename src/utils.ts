@@ -17,3 +17,8 @@ export function formatDate(ts: number): string {
 export function formatTime(ts: number): string {
   return new Date(ts).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 }
+
+/** Points signés : +12, 0, −5 */
+export function formatPts(n: number): string {
+  return n < 0 ? `−${Math.abs(n)}` : `+${n}`;
+}

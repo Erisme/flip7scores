@@ -1,12 +1,14 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { getGame, getPlayers } from '../storage';
-import { avatarColor, initials, formatDate, formatTime } from '../utils';
+import { getGame, getPlayers, gameVariant } from '../storage';
+import { avatarColor, initials, formatDate, formatTime, formatPts } from '../utils';
+import { useVariantTheme } from '../useVariantTheme';
 
 export default function GameDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const game = getGame(id!);
   const allPlayers = getPlayers();
+  useVariantTheme(game?.variant === 'vengeance');
 
   if (!game) {
     return (
@@ -28,6 +30,12 @@ export default function GameDetail() {
 
       <div className="page-title">
         <h1>{game.name}</h1>
+        {gameVariant(game) === 'vengeance' && (
+          <div className="flex gap-8">
+            <span className="badge badge-vengeance">Vengeance</span>
+            {game.brutal && <span className="badge badge-brutal">Brutal</span>}
+          </div>
+        )}
         <p>{formatDate(game.startedAt)} à {formatTime(game.startedAt)} · {game.rounds.length} tours · Objectif {game.targetScore} pts</p>
       </div>
 
@@ -58,7 +66,7 @@ export default function GameDetail() {
               if (!player) return null;
               const total = game.cumulativeScores[pid] || 0;
               const isWinner = winnerIds.includes(pid);
-              const pct = Math.min(100, (total / game.targetScore) * 100);
+              const pct = Math.max(0, Math.min(100, (total / game.targetScore) * 100));
               return (
                 <tr key={pid}>
                   <td className="player-col">
@@ -80,7 +88,7 @@ export default function GameDetail() {
                     const e = round.entries.find(e => e.playerId === pid);
                     return (
                       <td key={round.id} style={{ color: e?.busted ? 'var(--red)' : 'inherit' }}>
-                        {e?.busted ? '💥0' : `+${e?.roundScore ?? 0}`}
+                        {e?.busted ? '💥' : ''}{e?.busted && !e.roundScore ? '0' : formatPts(e?.roundScore ?? 0)}
                         {e?.hasFlip7 ? ' ⭐' : ''}
                       </td>
                     );
@@ -113,21 +121,30 @@ export default function GameDetail() {
                       </div>
                       <div>
                         <div className="player-name">{player!.name}</div>
-                        {!entry.busted && (
+                        {(!entry.busted || (entry.minusCards?.length ?? 0) > 0) && (
                           <div className="text-sm text-muted">
-                            Cartes: {entry.numberCards.join(', ') || '–'}
+                            {!entry.busted && <>Cartes: {entry.numberCards.join(', ') || '–'}</>}
+                            {entry.hasLucky13 ? ' · 🍀 Lucky 13' : ''}
                             {entry.hasDouble ? ' · ×2' : ''}
                             {entry.bonusCards.length > 0 ? ` · Bonus: ${entry.bonusCards.map(v => '+' + v).join(' ')}` : ''}
+                            {(entry.minusCards?.length || entry.hasHalve)
+                              ? ` · Modifs: ${[...(entry.minusCards ?? []).map(v => '−' + v), ...(entry.hasHalve ? ['÷2'] : [])].join(' ')}`
+                              : ''}
                             {entry.hasFlip7 ? ' · FLIP 7 ⭐' : ''}
+                            {entry.hasFlip7 && entry.flip7TargetId
+                              ? ` → −15 à ${allPlayers.find(p => p.id === entry.flip7TargetId)?.name ?? '?'}`
+                              : ''}
                           </div>
                         )}
                       </div>
                     </div>
                     <div>
-                      {entry.busted
-                        ? <span className="badge badge-red">BUST 💥</span>
-                        : <span className="font-bold" style={{ color: 'var(--accent2)' }}>+{entry.roundScore}</span>
-                      }
+                      {entry.busted && <span className="badge badge-red">BUST 💥</span>}
+                      {(!entry.busted || entry.roundScore !== 0) && (
+                        <span className="font-bold" style={{ color: entry.roundScore < 0 ? 'var(--danger)' : 'var(--accent2)', marginLeft: 6 }}>
+                          {formatPts(entry.roundScore)}
+                        </span>
+                      )}
                     </div>
                   </div>
                 );
