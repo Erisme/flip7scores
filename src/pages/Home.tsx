@@ -17,7 +17,7 @@ export default function Home() {
       </div>
 
       {activeGame && (
-        <div className="card mb-16" style={{ borderColor: 'rgba(245,166,35,0.4)' }}>
+        <div className="card mb-16">
           <div className="flex-center gap-8 mb-8">
             <GameController size={22} />
             <h3>Partie en cours</h3>
@@ -56,18 +56,18 @@ export default function Home() {
 
       <div className="flex gap-8">
         <div className="card" style={{ flex: 1, textAlign: 'center' }}>
-          <div style={{ fontSize: '2rem', fontWeight: 800 }}>{players.length}</div>
+          <div style={{ fontSize: '2.2rem', fontWeight: 900, fontFamily: 'var(--font-display)', lineHeight: 1 }}>{players.length}</div>
           <div className="text-sm text-muted mt-8">Joueurs</div>
         </div>
         <div className="card" style={{ flex: 1, textAlign: 'center' }}>
-          <div style={{ fontSize: '2rem', fontWeight: 800 }}>{finishedGames}</div>
+          <div style={{ fontSize: '2.2rem', fontWeight: 900, fontFamily: 'var(--font-display)', lineHeight: 1 }}>{finishedGames}</div>
           <div className="text-sm text-muted mt-8">Parties jouées</div>
         </div>
       </div>
 
       <hr className="divider" />
 
-      <div className="card" style={{ background: 'rgba(233,69,96,0.08)', borderColor: 'rgba(233,69,96,0.2)' }}>
+      <div className="card">
         <h3 className="mb-8 flex-center gap-8"><BookOpen /> Rappel des règles</h3>
         <ul className="text-sm text-muted" style={{ paddingLeft: 16, lineHeight: 1.8 }}>
           <li><strong>Flip 7</strong> : Collectez 7 cartes Numéro différentes → <strong>+15 pts bonus</strong></li>

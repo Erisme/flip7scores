@@ -1,26 +1,29 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* ── Palette Flip 7 – inspirée de la boîte officielle ── */
-  --teal:          #3dbcc4;   /* Turquoise de la boîte */
-  --teal-dark:     #2a9eaa;
-  --teal-deep:     #1e7a84;
-  --gold:          #e8c020;   /* Or des cadres Art Déco */
-  --gold-dark:     #b89600;
-  --gold-light:    #f5d84a;
-  --cream:         #f5f0d8;   /* Ivoire – fond des cartes Numéro */
-  --cream-dark:    #e8e0c0;
-  --navy:          #1a2570;   /* Marine foncé – texte */
-  --navy-mid:      #2d3a8c;
-  --coral:         #e55028;   /* Coral – carte Seconde Chance */
-  --purple:        #7c3aed;   /* Violet – accents FLIP 7 */
-  --amber:         #f5a800;   /* Ambre – cartes Bonus */
+  /* ── Palette relevée sur la boîte Flip 7 ── */
+  --teal:          #009fa3;   /* Turquoise du pourtour */
+  --teal-dark:     #00878b;
+  --teal-deep:     #006a6e;
+  --teal-light:    #80cacd;   /* Fond du panneau central */
+  --gold:          #ffdd51;   /* Jaune des cadres et du logo */
+  --gold-dark:     #e0b92e;
+  --gold-light:    #ffe98a;
+  --cream:         #fcf7e0;   /* Crème des cartes et bandeaux */
+  --cream-dark:    #ece4c0;
+  --navy:          #282e7c;   /* Marine des contours et textes */
+  --navy-mid:      #3c4296;
+  --coral:         #ea5f5c;   /* Rouge de l'éventail / Seconde Chance */
+  --blue:          #78a0d0;   /* Bleu de l'éventail / Stop */
+  --lime:          #d6de19;   /* Vert-jaune de l'éventail */
+  --purple:        #463775;   /* Violet des ombres */
+  --amber:         #f8c23a;   /* Cartes Bonus */
 
-  --bg:            #daf3f5;   /* Bleu-vert très clair, écho de la boîte */
-  --surface:       #fefcf0;   /* Crème chaude – surfaces cartes */
+  --bg:            var(--teal-light);
+  --surface:       var(--cream);
   --text:          var(--navy);
   --text-soft:     var(--navy-mid);
-  --muted:         #5a6480;
+  --muted:         #4d5380;
   --border:        var(--gold);
 
   --primary:       var(--teal);
@@ -28,14 +31,21 @@
   --secondary:     var(--gold);
   --secondary-hover: var(--gold-dark);
 
-  --success:       #2a9070;
+  --success:       var(--teal-dark);
   --danger:        var(--coral);
   --warning:       var(--amber);
+  --red:           var(--coral);
+  --accent2:       var(--teal-deep);
 
-  --radius:        14px;
-  --radius-lg:     20px;
-  --shadow:        0 4px 16px rgba(26, 37, 112, 0.14);
-  --shadow-gold:   0 4px 16px rgba(232, 192, 32, 0.25);
+  --font-display:  'Overpass', 'Arial Narrow', system-ui, sans-serif;
+  --font-body:     'Roboto', system-ui, -apple-system, sans-serif;
+
+  --radius:        10px;
+  --radius-lg:     14px;
+  --shadow:        0 5px 0 rgba(40, 46, 124, 0.18);
+  --shadow-gold:   0 5px 0 rgba(40, 46, 124, 0.18);
+  /* Cadre « boîte » : filet jaune cerné de marine */
+  --frame:         0 0 0 2px var(--navy), inset 0 0 0 2px var(--navy), var(--shadow);
 }
 
 /* ══════════════════════════════════════════════
@@ -43,7 +53,7 @@
 ══════════════════════════════════════════════ */
 html, body, #root {
   height: 100%;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
   background: var(--bg);
   color: var(--text);
   line-height: 1.6;
@@ -52,9 +62,7 @@ html, body, #root {
 
 /* Motif Art Déco subtil en fond */
 body {
-  background-image:
-    radial-gradient(circle at 20% 50%, rgba(61,188,196,0.08) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(232,192,32,0.06) 0%, transparent 40%);
+  background-image: none;
 }
 
 .app-shell { display: flex; flex-direction: column; min-height: 100vh; }
@@ -64,7 +72,7 @@ body {
 ══════════════════════════════════════════════ */
 .app-header {
   background: var(--teal);
-  border-bottom: 4px solid var(--gold);
+  border-bottom: 5px solid var(--gold);
   padding: 0 16px;
   display: flex;
   align-items: center;
@@ -73,54 +81,55 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 4px 12px rgba(26, 37, 112, 0.2);
+  box-shadow: 0 2px 0 var(--navy), inset 0 -2px 0 var(--navy);
 }
 
 /* Liseré or en haut du header */
 .app-header::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: var(--gold-light);
+  content: none;
 }
 
 .app-header .logo {
-  font-size: 1.6rem;
+  font-family: var(--font-display);
+  font-size: 1.7rem;
   font-weight: 900;
   color: var(--gold);
   text-decoration: none;
-  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
   display: flex;
   align-items: center;
   gap: 6px;
-  text-shadow: 2px 2px 0 var(--navy);
-  -webkit-text-stroke: 0.5px var(--navy);
+  -webkit-text-stroke: 5px var(--navy);
+  paint-order: stroke fill;
+  text-shadow: 3px 3px 0 var(--navy);
 }
 
 .app-header nav { display: flex; gap: 4px; }
 
 .app-header nav a {
-  color: rgba(255,255,255,0.85);
+  color: var(--cream);
   text-decoration: none;
-  padding: 8px 14px;
+  padding: 6px 12px 6px 6px;
   border-radius: 999px;
-  font-size: 1rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   transition: all 0.2s;
   border: 2px solid transparent;
 }
 
 .app-header nav a:hover {
-  color: white;
-  border-color: rgba(255,255,255,0.4);
+  border-color: var(--cream);
 }
 
 .app-header nav a.active {
   background: var(--gold);
   color: var(--navy);
-  border-color: var(--gold);
-  box-shadow: 0 2px 0 var(--gold-dark);
+  border-color: var(--navy);
+  box-shadow: 0 2px 0 var(--navy);
 }
 
 /* ══════════════════════════════════════════════
@@ -135,50 +144,47 @@ body {
 }
 
 h1 {
-  font-size: 2rem;
+  font-family: var(--font-display);
+  font-size: 2.1rem;
   font-weight: 900;
-  letter-spacing: -0.04em;
+  line-height: 1.15;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
   margin-bottom: 8px;
-  color: var(--navy);
+  color: var(--gold);
+  -webkit-text-stroke: 5px var(--navy);
+  paint-order: stroke fill;
+  text-shadow: 3px 3px 0 var(--navy);
 }
 
 h2 {
-  font-size: 1.1rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
   font-weight: 900;
   margin-bottom: 20px;
-  color: var(--surface);
-  background: var(--teal);
+  color: var(--navy);
+  background: var(--cream);
   display: inline-block;
-  padding: 6px 20px 6px 16px;
-  border-radius: 4px 24px 24px 4px;
-  border-left: 4px solid var(--gold);
-  letter-spacing: 0.04em;
+  padding: 7px 18px 4px;
+  border: 2.5px solid var(--navy);
+  border-radius: 3px;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  box-shadow: 2px 2px 0 var(--teal-deep);
+  transform: rotate(-1.5deg);
+  box-shadow: 4px 4px 0 var(--teal);
 }
 
 /* Titre de page style bannière ruban */
 .page-title {
   margin-bottom: 28px;
-  padding: 18px 20px 16px;
+  padding: 20px 20px 16px;
   background: var(--surface);
-  border: 2.5px solid var(--gold);
+  border: 4px solid var(--gold);
   border-radius: var(--radius);
   position: relative;
-  box-shadow: var(--shadow-gold), inset 0 0 0 4px rgba(232,192,32,0.08);
+  box-shadow: var(--frame);
 }
 
-/* Coins Art Déco */
-.page-title::before,
-.page-title::after {
-  content: '◆';
-  position: absolute;
-  color: var(--gold);
-  font-size: 0.7rem;
-  top: 6px;
-}
-.page-title::before { left: 8px; }
-.page-title::after  { right: 8px; }
 
 .page-title p { color: var(--muted); font-size: 1rem; font-weight: 600; margin-top: 4px; }
 
@@ -187,26 +193,14 @@ h2 {
 ══════════════════════════════════════════════ */
 .card {
   background: var(--surface);
-  border: 2.5px solid var(--gold);
+  border: 4px solid var(--gold);
   border-radius: var(--radius);
   padding: 24px;
-  box-shadow: var(--shadow), inset 0 0 0 4px rgba(232,192,32,0.07);
+  box-shadow: var(--frame);
   margin-bottom: 20px;
   position: relative;
 }
 
-/* Petits coins décoratifs Art Déco */
-.card::before,
-.card::after {
-  content: '';
-  position: absolute;
-  width: 12px; height: 12px;
-  border-color: var(--gold);
-  border-style: solid;
-  opacity: 0.7;
-}
-.card::before { top: 6px; left: 6px;  border-width: 2px 0 0 2px; }
-.card::after  { bottom: 6px; right: 6px; border-width: 0 2px 2px 0; }
 
 /* ══════════════════════════════════════════════
    BOUTONS
@@ -216,47 +210,52 @@ h2 {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 14px 24px;
+  padding: 14px 24px 11px;
   border-radius: var(--radius);
-  border: 2.5px solid transparent;
+  border: 2.5px solid var(--navy);
   cursor: pointer;
+  font-family: var(--font-display);
   font-size: 1rem;
   font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   transition: all 0.15s;
   text-decoration: none;
-  letter-spacing: 0.01em;
 }
 
 .btn:active { transform: translateY(2px); box-shadow: none !important; }
 .btn:disabled { opacity: 0.5; filter: grayscale(0.6); transform: none; box-shadow: none; cursor: not-allowed; }
 
 .btn-primary {
-  background: var(--teal);
-  color: white;
-  border-color: var(--teal-dark);
-  box-shadow: 0 4px 0 var(--teal-deep);
-}
-.btn-primary:hover { background: var(--teal-dark); }
-
-.btn-secondary {
   background: var(--gold);
   color: var(--navy);
-  border-color: var(--gold-dark);
-  box-shadow: 0 4px 0 var(--gold-dark);
+  box-shadow: 0 4px 0 var(--navy);
 }
-.btn-secondary:hover { background: var(--gold-light); }
+.btn-primary:hover {
+  background: var(--gold-light);
+}
+
+.btn-secondary {
+  background: var(--cream);
+  color: var(--navy);
+  box-shadow: 0 4px 0 var(--navy);
+}
+.btn-secondary:hover {
+  background: #fff;
+}
 
 .btn-success {
-  background: #2a9070;
+  background: var(--teal);
   color: white;
-  border-color: #1e6e54;
-  box-shadow: 0 4px 0 #1e6e54;
+  box-shadow: 0 4px 0 var(--navy);
 }
-.btn-success:hover { background: #1e7a60; }
+.btn-success:hover {
+  background: var(--teal-dark);
+}
 
-.btn-warning { background: var(--amber); color: var(--navy); border-color: #c88000; box-shadow: 0 4px 0 #c88000; }
-.btn-ghost   { background: transparent; color: var(--text-soft); border-color: var(--border); }
-.btn-sm      { padding: 8px 14px; font-size: 0.9rem; }
+.btn-warning { background: var(--coral); color: white; box-shadow: 0 4px 0 var(--navy); }
+.btn-ghost   { background: transparent; color: var(--navy); border-color: var(--navy); border-style: dashed; }
+.btn-sm      { padding: 8px 14px 6px; font-size: 0.8rem; }
 .btn-lg      { width: 100%; font-size: 1.2rem; border-radius: var(--radius-lg); }
 
 /* ══════════════════════════════════════════════
@@ -289,10 +288,10 @@ input:focus, select:focus {
   justify-content: space-between;
   padding: 18px 20px;
   background: var(--surface);
-  border: 2.5px solid var(--gold);
+  border: 3px solid var(--gold);
   border-radius: var(--radius);
   margin-bottom: 12px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 0 0 2px var(--navy);
 }
 
 .player-avatar {
@@ -313,10 +312,13 @@ input:focus, select:focus {
 ══════════════════════════════════════════════ */
 .num-btn {
   width: 56px; height: 56px;
-  border-radius: 10px;
+  border-radius: 8px;
   border: 2.5px solid var(--navy);
+  font-family: var(--font-display);
   font-weight: 900;
-  font-size: 1.4rem;
+  font-size: 1.6rem;
+  line-height: 1;
+  padding-top: 4px;
   background: var(--cream);
   color: var(--num-color, var(--navy));
   cursor: pointer;
@@ -375,13 +377,14 @@ input:focus, select:focus {
 .bonus-btn {
   padding: 10px 16px;
   border-radius: 10px;
-  border: 2.5px solid #2d1f80;
+  border: 2.5px solid var(--navy);
+  font-family: var(--font-display);
   font-weight: 900;
   font-size: 1.15rem;
   background: var(--amber);
-  color: #dc2626;
+  color: var(--navy);
   cursor: pointer;
-  box-shadow: 0 3px 0 #2d1f80;
+  box-shadow: 0 3px 0 var(--navy);
   letter-spacing: -0.02em;
   transition: all 0.12s;
   text-shadow: 1px 1px 0 rgba(0,0,0,0.1);
@@ -392,10 +395,10 @@ input:focus, select:focus {
 .bonus-btn:hover { filter: brightness(1.05); }
 
 .bonus-btn.selected {
-  background: #2d1f80;
-  color: var(--gold-light);
-  border-color: #1a1060;
-  box-shadow: 0 2px 0 #1a1060;
+  background: var(--navy);
+  color: var(--gold);
+  border-color: var(--navy);
+  box-shadow: 0 2px 0 var(--purple);
   transform: translateY(1px);
 }
 
@@ -425,8 +428,9 @@ input:focus, select:focus {
 .scoreboard-container {
   overflow-x: auto;
   border-radius: var(--radius);
-  border: 2.5px solid var(--gold);
-  box-shadow: var(--shadow-gold);
+  border: 4px solid var(--gold);
+  background: var(--surface);
+  box-shadow: 0 0 0 2px var(--navy), var(--shadow);
 }
 
 .scoreboard-toggle-bar {
@@ -473,8 +477,8 @@ input:focus, select:focus {
 
 /* En-tête */
 .scoreboard thead tr {
-  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
-  border-bottom: 2.5px solid var(--gold);
+  background: var(--teal);
+  border-bottom: 2.5px solid var(--navy);
 }
 
 .scoreboard th {
@@ -514,13 +518,14 @@ input:focus, select:focus {
 
 /* Score du leader */
 .score-leader {
-  color: var(--teal);
+  color: var(--teal-deep);
   font-size: 1.05rem;
   font-weight: 900;
 }
 
 /* Score total – colonne principale */
 .score-total-cell {
+  font-family: var(--font-display);
   font-size: 1.55rem;
   font-weight: 900;
   color: var(--navy);
@@ -567,12 +572,12 @@ input:focus, select:focus {
 ══════════════════════════════════════════════ */
 .target-indicator {
   background: var(--surface);
-  border: 2.5px solid var(--gold);
+  border: 2.5px solid var(--navy);
   padding: 12px 20px;
   border-radius: 999px;
   color: var(--navy);
   font-weight: 800;
-  box-shadow: var(--shadow-gold);
+  box-shadow: 3px 3px 0 var(--teal);
 }
 
 /* ══════════════════════════════════════════════
@@ -586,10 +591,10 @@ input:focus, select:focus {
 
 .player-card {
   background: var(--surface);
-  border: 2.5px solid var(--gold);
+  border: 4px solid var(--gold);
   border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: var(--shadow);
+  box-shadow: 0 0 0 2px var(--navy), var(--shadow);
 }
 
 .player-card-header {
@@ -775,6 +780,7 @@ input:focus, select:focus {
 }
 
 .target-preset-btn {
+  font-family: var(--font-display);
   padding: 10px 18px;
   border-radius: 10px;
   border: 2.5px solid var(--cream-dark);
@@ -797,6 +803,7 @@ input:focus, select:focus {
 }
 
 .field-label {
+  font-family: var(--font-display);
   display: block;
   font-size: 0.8rem;
   font-weight: 900;
@@ -827,7 +834,9 @@ input:focus, select:focus {
 /* ══════════════════════════════════════════════
    UTILITAIRES
 ══════════════════════════════════════════════ */
+/* (titres de section) */
 .section-label {
+  font-family: var(--font-display);
   font-size: 0.8rem;
   font-weight: 900;
   text-transform: uppercase;
@@ -870,8 +879,10 @@ input:focus, select:focus {
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 10px;
+  padding: 3px 10px 1px;
   border-radius: 999px;
+  border: 1.5px solid var(--navy);
+  font-family: var(--font-display);
   font-size: 0.75rem;
   font-weight: 900;
   letter-spacing: 0.05em;
@@ -891,14 +902,14 @@ input:focus, select:focus {
 
 .entry-card {
   background: var(--surface);
-  border: 3px solid var(--gold);
+  border: 4px solid var(--gold);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: 0 6px 20px rgba(26,37,112,0.12), 0 2px 0 var(--gold-dark);
+  box-shadow: 0 0 0 2px var(--navy), var(--shadow);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
-.entry-card.busted { border-color: var(--danger); box-shadow: 0 6px 20px rgba(229,80,40,0.18), 0 2px 0 #a01818; }
-.entry-card.flip7  { border-color: var(--purple); box-shadow: 0 6px 20px rgba(124,58,237,0.22), 0 0 0 4px rgba(147,51,234,0.12); }
+.entry-card.busted { border-color: var(--danger); }
+.entry-card.flip7  { border-color: var(--lime); }
 
 /* ── Header joueur : grand, lisible, coloré ── */
 .entry-header {
@@ -906,24 +917,27 @@ input:focus, select:focus {
   align-items: center;
   gap: 12px;
   padding: 16px 18px;
-  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+  background: var(--teal);
   color: white;
   flex-wrap: wrap;
-  border-bottom: 2px solid var(--gold);
+  border-bottom: 2.5px solid var(--navy);
 }
-.entry-card.busted .entry-header { background: linear-gradient(135deg, var(--danger) 0%, #a01818 100%); border-bottom-color: #ff6b6b; }
-.entry-card.flip7  .entry-header { background: linear-gradient(135deg, var(--purple) 0%, #5b21b6 100%); border-bottom-color: var(--gold); }
+.entry-card.busted .entry-header { background: var(--danger); }
+.entry-card.flip7  .entry-header { background: var(--purple); }
 
 /* Nom du joueur – grand et gras */
 .entry-player-name {
-  font-size: 1.15rem;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
   font-weight: 900;
-  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
   flex: 1;
 }
 
 /* Points cumulés – bien visible à droite */
 .cumulative {
+  font-family: var(--font-display);
   margin-left: auto;
   font-size: 1.3rem;
   font-weight: 900;
@@ -951,6 +965,7 @@ input:focus, select:focus {
 }
 
 .score-val {
+  font-family: var(--font-display);
   font-size: 1.4rem;
   font-weight: 900;
   color: var(--teal-deep);
@@ -971,16 +986,16 @@ input:focus, select:focus {
 
 .modal {
   background: var(--surface);
-  border: 3px solid var(--gold);
+  border: 4px solid var(--gold);
   border-radius: var(--radius-lg);
   padding: 28px 24px;
   max-width: 460px;
   width: 100%;
-  box-shadow: 0 20px 60px rgba(26,37,112,0.3), var(--shadow-gold);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  box-shadow: 0 0 0 2px var(--navy), inset 0 0 0 2px var(--navy), 0 12px 0 rgba(40,46,124,0.35);
   position: relative;
 }
-.modal::before { content: '◆'; position: absolute; top: 8px; left: 12px; color: var(--gold); font-size: 0.6rem; }
-.modal::after  { content: '◆'; position: absolute; top: 8px; right: 12px; color: var(--gold); font-size: 0.6rem; }
 
 .modal h2 { margin-bottom: 20px; }
 
@@ -1013,7 +1028,6 @@ input:focus, select:focus {
 ══════════════════════════════════════════════ */
 @media (max-width: 480px) {
   .app-header nav a span { display: none; }
-  .app-header nav a { font-size: 1.3rem; padding: 10px 12px; }
   .page { padding-top: 20px; }
   h1 { font-size: 1.7rem; }
   h2 { font-size: 0.95rem; }
@@ -1077,15 +1091,10 @@ input:focus, select:focus {
    THÈME VENGEANCE – bleu foncé (boîte Vengeance)
 ══════════════════════════════════════════════ */
 :root.theme-vengeance {
-  --teal:      #2648b0;
-  --teal-dark: #1b3487;
-  --teal-deep: #10215c;
-  --bg:        #cdd7f2;
-}
-.theme-vengeance body {
-  background-image:
-    radial-gradient(circle at 20% 50%, rgba(38,72,176,0.12) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(232,192,32,0.06) 0%, transparent 40%);
+  --teal:       #2648b0;
+  --teal-dark:  #1b3487;
+  --teal-deep:  #10215c;
+  --teal-light: #9db0e6;
 }
 .theme-vengeance .score-preview { background: rgba(38,72,176,0.08); border-color: rgba(38,72,176,0.25); }
 .theme-vengeance input:focus,
@@ -1099,3 +1108,81 @@ input:focus, select:focus {
 .badge { gap: 4px; }
 h2 svg { vertical-align: -0.2em; }
 .empty-state .icon svg { width: 3rem; height: 3rem; color: var(--teal); }
+
+/* ══════════════════════════════════════════════
+   CHARTE « BOÎTE » – compléments
+══════════════════════════════════════════════ */
+/* Carrés d'angle des cadres jaunes, comme sur la boîte */
+.card::before, .card::after,
+.page-title::before, .page-title::after {
+  content: '';
+  position: absolute;
+  width: 14px; height: 14px;
+  background: var(--cream);
+  border: 3px solid var(--gold);
+  box-shadow: 0 0 0 2px var(--navy);
+}
+.card::before, .page-title::before { top: -11px; left: -11px; }
+.card::after,  .page-title::after  { bottom: -11px; right: -11px; }
+
+h3 {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--navy);
+}
+
+/* Pictos en pastille marine, comme « dès 8 ans / 20 minutes » */
+.app-header nav a svg {
+  width: 30px; height: 30px;
+  padding: 6px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: var(--cream);
+  box-shadow: 0 0 0 2px var(--gold);
+}
+
+/* Liste de l'historique */
+.game-list { display: flex; flex-direction: column; gap: 14px; }
+.game-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 3px solid var(--gold);
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 2px var(--navy), var(--shadow);
+  cursor: pointer;
+  transition: transform 0.12s;
+}
+.game-item:hover { transform: translateY(-2px); }
+.game-item-info  { flex: 1; min-width: 0; }
+.game-item-name  { font-family: var(--font-display); font-weight: 900; font-size: 1.05rem; text-transform: uppercase; }
+.game-item-meta  { font-size: 0.8rem; color: var(--muted); }
+.game-item-score { font-family: var(--font-display); font-weight: 900; font-size: 1.2rem; white-space: nowrap; }
+
+.empty-state {
+  text-align: center;
+  padding: 36px 20px;
+  background: var(--surface);
+  border: 4px solid var(--gold);
+  border-radius: var(--radius);
+  box-shadow: var(--frame);
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+}
+
+.divider { border: none; border-top: 3px dashed var(--navy); opacity: 0.35; margin: 24px 0; }
+
+.app-header .logo { white-space: nowrap; flex-shrink: 0; }
+.app-header nav { flex-shrink: 0; }
+
+@media (max-width: 600px) {
+  .app-header nav a span { display: none; }
+  .app-header nav a { padding: 4px; }
+}
+@media (max-width: 480px) {
+  .app-header .logo { font-size: 1.35rem; }
+}

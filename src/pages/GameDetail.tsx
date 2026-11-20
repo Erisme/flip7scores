@@ -42,7 +42,7 @@ export default function GameDetail() {
 
       {/* Winners */}
       {winnerIds.length > 0 && (
-        <div className="card mb-16" style={{ borderColor: 'rgba(245,166,35,0.4)', background: 'rgba(245,166,35,0.08)', textAlign: 'center', padding: '24px 16px' }}>
+        <div className="card mb-16" style={{ textAlign: 'center', padding: '24px 16px' }}>
           <div style={{ marginBottom: 8, color: 'var(--gold-dark)' }}><Trophy size={44} weight="fill" /></div>
           <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent2)' }}>
             {winnerIds.map(id => allPlayers.find(p => p.id === id)?.name).filter(Boolean).join(' & ')}
