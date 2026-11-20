@@ -17,7 +17,7 @@ export default function Home() {
       </div>
 
       {activeGame && (
-        <div className="card mb-16">
+        <div className="card">
           <div className="flex-center gap-8 mb-8">
             <GameController size={22} />
             <h3>Partie en cours</h3>
@@ -32,7 +32,7 @@ export default function Home() {
         </div>
       )}
 
-      <div className="card mb-16">
+      <div className="card">
         <h2>Nouvelle partie</h2>
         <p className="text-sm text-muted mb-16">
           {players.length < 2

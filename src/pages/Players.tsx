@@ -88,7 +88,7 @@ function PlayerItem({
             onKeyDown={onKeyDown}
             maxLength={30}
             autoFocus
-            style={{ padding: '6px 10px', fontSize: '1rem', width: '100%', marginBottom: 8 }}
+            style={{ padding: '8px 12px', fontSize: '1rem', width: '100%', marginBottom: 8 }}
           />
         ) : (
           <div className="player-card-name">{player.name}</div>
@@ -159,7 +159,7 @@ export default function Players() {
         <p>Stats et gestion des joueurs</p>
       </div>
 
-      <div className="card mb-16">
+      <div className="card">
         <h2>Ajouter un joueur</h2>
         <form onSubmit={handleAdd}>
           <div className="input-row">

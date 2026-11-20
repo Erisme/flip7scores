@@ -539,9 +539,9 @@ function GameScreen({ initialGame }: { initialGame: Game }) {
 
   return (
     <div className="page">
-      <div className="flex-center gap-8 mb-16">
+      <div className="flex-center gap-8 mb-24">
         <div>
-          <h1 style={{ marginBottom: 2 }}>{game.name}</h1>
+          <h1 style={{ marginBottom: 4 }}>{game.name}</h1>
           <div className="flex-center gap-8" style={{ flexWrap: 'wrap' }}>
             {gameVariant(game) === 'vengeance' && <span className="badge badge-vengeance">Vengeance</span>}
             {game.brutal && <span className="badge badge-brutal">Brutal</span>}
@@ -579,7 +579,7 @@ function GameScreen({ initialGame }: { initialGame: Game }) {
       </div>
 
       {/* Scoreboard */}
-      <div className="scoreboard-container mb-16">
+      <div className="scoreboard-container mb-24">
         <div className="scoreboard-toggle-bar">
           <span className="scoreboard-toggle-label">Détail des manches</span>
           <button
@@ -666,7 +666,7 @@ function GameScreen({ initialGame }: { initialGame: Game }) {
       </div>
 
       <button
-        className="btn btn-ghost mt-16"
+        className="btn btn-ghost mt-24"
         style={{ width: '100%' }}
         onClick={() => setShowAddPlayer(true)}
       >

@@ -13,7 +13,7 @@ function Header() {
   return (
     <header className="app-header">
       <NavLink to="/" className="logo">
-        <img src="/favicon.svg" alt="" style={{ width: 26, height: 26, verticalAlign: 'text-bottom', marginRight: 6 }} />
+        <img src="/favicon.svg" alt="" style={{ width: 26, height: 26, verticalAlign: 'text-bottom' }} />
         Flip 7
       </NavLink>
       <nav>

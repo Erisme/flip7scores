@@ -42,7 +42,7 @@ export default function History() {
         <p>{games.length} partie{games.length > 1 ? 's' : ''} terminée{games.length > 1 ? 's' : ''}</p>
       </div>
 
-      <div className="flex gap-8 mb-16">
+      <div className="flex gap-8 mb-24">
         <button className="btn btn-secondary btn-sm" onClick={exportHistoryJson}>
           <DownloadSimple /> Exporter JSON
         </button>
