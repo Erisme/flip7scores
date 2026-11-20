@@ -54,7 +54,7 @@ export default function Home() {
         )}
       </div>
 
-      <div className="flex gap-8">
+      <div className="flex gap-24">
         <div className="card" style={{ flex: 1, textAlign: 'center' }}>
           <div style={{ fontSize: '2.2rem', fontWeight: 900, fontFamily: 'var(--font-display)', lineHeight: 1 }}>{players.length}</div>
           <div className="text-sm text-muted mt-8">Joueurs</div>
