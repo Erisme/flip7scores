@@ -4,6 +4,7 @@ import { getPlayers, createGame } from '../storage';
 import { avatarColor, initials } from '../utils';
 import type { GameVariant } from '../types';
 import { useVariantTheme } from '../useVariantTheme';
+import { ArrowRight, Check, DiceFive, Skull, Target } from '@phosphor-icons/react';
 
 const TARGET_PRESETS = [100, 150, 200, 250, 300];
 
@@ -68,7 +69,7 @@ export default function NewGame() {
             className={`target-preset-btn${variant === 'vengeance' ? ' selected vengeance' : ''}`}
             onClick={() => setVariant('vengeance')}
           >
-            Vengeance 😈
+            Vengeance <Skull />
           </button>
         </div>
         <p className="text-sm text-muted mt-8">
@@ -110,7 +111,7 @@ export default function NewGame() {
           style={{ marginTop: 10 }}
         />
         <div className="target-indicator" style={{ marginTop: 12 }}>
-          🎯 Score à atteindre : <strong>{finalTarget} pts</strong>
+          <Target /> Score à atteindre : <strong>{finalTarget} pts</strong>
         </div>
       </div>
 
@@ -119,7 +120,7 @@ export default function NewGame() {
         <h2>
           Joueurs
           {selected.length >= 2
-            ? ` — ${selected.length} sélectionnés ✓`
+            ? ` — ${selected.length} sélectionnés`
             : ` — sélectionnez au moins 2`}
         </h2>
 
@@ -127,7 +128,7 @@ export default function NewGame() {
           <p className="text-sm text-muted">
             Aucun joueur disponible.{' '}
             <button className="btn btn-ghost btn-sm" onClick={() => navigate('/players')}>
-              Créer des joueurs →
+              Créer des joueurs <ArrowRight />
             </button>
           </p>
         ) : (
@@ -148,7 +149,7 @@ export default function NewGame() {
                     )}
                   </div>
                   <span className="player-pick-name">{p.name}</span>
-                  {isSelected && <span className="player-pick-check">✓</span>}
+                  {isSelected && <span className="player-pick-check"><Check /></span>}
                 </button>
               );
             })}
@@ -161,7 +162,7 @@ export default function NewGame() {
         disabled={selected.length < 2 || !finalTarget}
         onClick={handleStart}
       >
-        🎲 Démarrer ({selected.length} joueur{selected.length > 1 ? 's' : ''})
+        <DiceFive /> Démarrer ({selected.length} joueur{selected.length > 1 ? 's' : ''})
       </button>
     </div>
   );

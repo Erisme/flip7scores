@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { addPlayer, deletePlayer, getPlayers, getGames, updatePlayerName } from '../storage';
 import { avatarColor, initials, formatDate } from '../utils';
 import type { Player } from '../types';
+import { Check, PencilSimple, Trash, Trophy, Users } from '@phosphor-icons/react';
 
 interface PlayerStats {
   played: number;
@@ -67,11 +68,11 @@ function PlayerItem({
         </div>
         <div className="player-card-actions">
           {editing ? (
-            <button className="btn-icon confirm" onClick={commit} title="Valider">✓</button>
+            <button className="btn-icon confirm" onClick={commit} title="Valider"><Check /></button>
           ) : (
-            <button className="btn-icon" onClick={startEdit} title="Renommer" style={{ background: 'rgba(255,255,255,0.2)', border: '1.5px solid rgba(255,255,255,0.4)', color: 'white' }}>✏️</button>
+            <button className="btn-icon" onClick={startEdit} title="Renommer" style={{ background: 'rgba(255,255,255,0.2)', border: '1.5px solid rgba(255,255,255,0.4)', color: 'white' }}><PencilSimple /></button>
           )}
-          <button className="btn-icon danger" onClick={onDelete} title="Supprimer" style={{ background: 'rgba(255,255,255,0.2)', border: '1.5px solid rgba(255,255,255,0.4)' }}>🗑️</button>
+          <button className="btn-icon danger" onClick={onDelete} title="Supprimer" style={{ background: 'rgba(255,255,255,0.2)', border: '1.5px solid rgba(255,255,255,0.4)', color: 'white' }}><Trash /></button>
         </div>
       </div>
 
@@ -102,7 +103,7 @@ function PlayerItem({
               <span className="player-stat-label">parties</span>
             </div>
             <div className="player-stat highlight">
-              <span className="player-stat-val">🏆 {stats.wins}</span>
+              <span className="player-stat-val"><Trophy weight="fill" color="var(--gold-dark)" /> {stats.wins}</span>
               <span className="player-stat-label">victoires</span>
             </div>
             <div className="player-stat">
@@ -178,7 +179,7 @@ export default function Players() {
 
       {players.length === 0 ? (
         <div className="empty-state">
-          <div style={{ fontSize: '3rem' }}>👥</div>
+          <div style={{ color: 'var(--teal)' }}><Users size={48} /></div>
           <p>Aucun joueur pour l'instant.<br />Ajoutez des joueurs pour commencer.</p>
         </div>
       ) : (
