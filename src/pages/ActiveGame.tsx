@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import {
   getGame, updateGame, getPlayers, addPlayer, BONUS_CARD_VALUES, MINUS_CARD_VALUES,
   entryScore, scoreRound, gameVariant,
@@ -430,10 +430,20 @@ function AddPlayerModal({
 
 export default function ActiveGame() {
   const { id } = useParams<{ id: string }>();
+  const game = getGame(id!);
+  if (!game) return <Navigate to="/" replace />;
+  if (game.status === 'finished') return <Navigate to={`/history/${game.id}`} replace />;
+  // key : repart d'un état neuf si on passe d'une partie à une autre
+  return <GameScreen key={game.id} initialGame={game} />;
+}
+
+function GameScreen({ initialGame }: { initialGame: Game }) {
   const navigate = useNavigate();
-  const [game, setGame] = useState<Game | null>(null);
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [drafts, setDrafts] = useState<EntryDraft[]>([]);
+  const [game, setGame] = useState<Game>(initialGame);
+  const [players, setPlayers] = useState<Player[]>(
+    () => getPlayers().filter(p => initialGame.playerIds.includes(p.id))
+  );
+  const [drafts, setDrafts] = useState<EntryDraft[]>(() => initialGame.playerIds.map(initDraft));
   const [showSummary, setShowSummary] = useState(false);
   const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [showRounds, setShowRounds] = useState(false);
@@ -444,19 +454,7 @@ export default function ActiveGame() {
 
   // Précharge la vidéo du Flip 7 pour qu'elle s'affiche sans délai
   useEffect(() => { fetch('/flip7.mp4').catch(() => { /* hors ligne */ }); }, []);
-  useVariantTheme(game?.variant === 'vengeance');
-
-  useEffect(() => {
-    const g = getGame(id!);
-    if (!g) { navigate('/'); return; }
-    if (g.status === 'finished') { navigate(`/history/${g.id}`); return; }
-    const allPlayers = getPlayers();
-    setGame(g);
-    setPlayers(allPlayers.filter(p => g.playerIds.includes(p.id)));
-    setDrafts(g.playerIds.map(initDraft));
-  }, [id, navigate]);
-
-  if (!game) return null;
+  useVariantTheme(game.variant === 'vengeance');
 
   const maxScore = Math.max(...game.playerIds.map(id => game.cumulativeScores[id] || 0));
 
