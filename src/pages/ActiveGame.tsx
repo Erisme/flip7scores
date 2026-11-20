@@ -442,8 +442,8 @@ export default function ActiveGame() {
   const [celebration, setCelebration] = useState<string | null>(null);
   const closeCelebration = useCallback(() => setCelebration(null), []);
 
-  // Précharge le GIF du Flip 7 pour qu'il s'affiche sans délai
-  useEffect(() => { const img = new Image(); img.src = '/flip7.gif'; }, []);
+  // Précharge la vidéo du Flip 7 pour qu'elle s'affiche sans délai
+  useEffect(() => { fetch('/flip7.mp4').catch(() => { /* hors ligne */ }); }, []);
   useVariantTheme(game?.variant === 'vengeance');
 
   useEffect(() => {
@@ -691,7 +691,13 @@ export default function ActiveGame() {
         />
       )}
 
-      {celebration && <Flip7Celebration playerName={celebration} onDone={closeCelebration} />}
+      {celebration && (
+        <Flip7Celebration
+          playerName={celebration}
+          bonusLabel={game.brutal ? '+15 ou −15 à un adversaire' : '+15 points'}
+          onDone={closeCelebration}
+        />
+      )}
 
       {showSummary && (
         <RoundSummaryModal

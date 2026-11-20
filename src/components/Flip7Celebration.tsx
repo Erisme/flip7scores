@@ -27,8 +27,12 @@ function makeGlitter(): Glitter[] {
   }));
 }
 
-/** Animation plein écran quand un joueur réalise un Flip 7 : GIF + pluie de paillettes */
-export default function Flip7Celebration({ playerName, onDone }: { playerName: string; onDone: () => void }) {
+/** Animation plein écran quand un joueur réalise un Flip 7 : vidéo (ex-GIF) + pluie de paillettes */
+export default function Flip7Celebration({ playerName, bonusLabel = '+15 points', onDone }: {
+  playerName: string;
+  bonusLabel?: string;
+  onDone: () => void;
+}) {
   const [glitter] = useState(makeGlitter);
 
   useEffect(() => {
@@ -60,9 +64,18 @@ export default function Flip7Celebration({ playerName, onDone }: { playerName: s
 
       <div className="flip7-card">
         <div className="flip7-title">Flip 7 !</div>
-        <img src="/flip7.gif" alt="" className="flip7-gif" />
+        <video
+          className="flip7-gif"
+          src="/flip7.mp4"
+          poster="/flip7-poster.jpg"
+          autoPlay
+          muted
+          loop
+          playsInline
+          aria-hidden="true"
+        />
         <div className="flip7-player">{playerName}</div>
-        <div className="flip7-bonus">+15 points</div>
+        <div className="flip7-bonus">{bonusLabel}</div>
       </div>
     </div>
   );
