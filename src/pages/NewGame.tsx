@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getPlayers, createGame } from '../storage';
 import { avatarColor, initials } from '../utils';
+import type { GameVariant } from '../types';
+import { useVariantTheme } from '../useVariantTheme';
 
 const TARGET_PRESETS = [100, 150, 200, 250, 300];
 
@@ -12,6 +14,9 @@ export default function NewGame() {
   const [target, setTarget] = useState(200);
   const [customTarget, setCustomTarget] = useState('');
   const [gameName, setGameName] = useState('');
+  const [variant, setVariant] = useState<GameVariant>('classic');
+  const [brutal, setBrutal] = useState(false);
+  useVariantTheme(variant === 'vengeance');
 
   function togglePlayer(id: string) {
     setSelected(prev =>
@@ -24,7 +29,7 @@ export default function NewGame() {
     const finalTarget = customTarget ? parseInt(customTarget) : target;
     if (!finalTarget || finalTarget < 10) return;
     const name = gameName.trim() || `Partie du ${new Date().toLocaleDateString('fr-FR')}`;
-    const game = createGame(name, selected, finalTarget);
+    const game = createGame(name, selected, finalTarget, variant, brutal);
     navigate(`/game/${game.id}`);
   }
 
@@ -47,6 +52,39 @@ export default function NewGame() {
           onChange={e => setGameName(e.target.value)}
           maxLength={40}
         />
+      </div>
+
+      {/* Version du jeu */}
+      <div className="card mb-16">
+        <h2>Version du jeu</h2>
+        <div className="target-presets">
+          <button
+            className={`target-preset-btn${variant === 'classic' ? ' selected' : ''}`}
+            onClick={() => setVariant('classic')}
+          >
+            Classique
+          </button>
+          <button
+            className={`target-preset-btn${variant === 'vengeance' ? ' selected vengeance' : ''}`}
+            onClick={() => setVariant('vengeance')}
+          >
+            Vengeance 😈
+          </button>
+        </div>
+        <p className="text-sm text-muted mt-8">
+          {variant === 'classic'
+            ? 'Cartes 0 à 12, bonus +2 à +10 et ×2.'
+            : 'Cartes 0 à 13 (The Zero, Lucky 13), modificateurs −2 à −10 et ÷2. Le score d’un tour ne descend pas sous 0.'}
+        </p>
+        {variant === 'vengeance' && (
+          <label className="checkbox-row mt-8">
+            <input type="checkbox" checked={brutal} onChange={e => setBrutal(e.target.checked)} />
+            <span>
+              <strong>Mode Brutal</strong>
+              <span className="text-sm text-muted"> — scores négatifs possibles, modificateurs sur les joueurs sautés, Flip 7 : +15 ou −15 à un adversaire.</span>
+            </span>
+          </label>
+        )}
       </div>
 
       {/* Score cible */}

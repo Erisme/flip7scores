@@ -1019,3 +1019,74 @@ input:focus, select:focus {
   h2 { font-size: 0.95rem; }
   .num-btn { width: 48px; height: 48px; font-size: 1.2rem; }
 }
+
+/* ══════════════════════════════════════════════
+   VARIANTE VENGEANCE
+══════════════════════════════════════════════ */
+.target-preset-btn.selected.vengeance {
+  background: #8b1538;
+  border-color: #5e0e26;
+  box-shadow: 0 2px 0 #5e0e26;
+}
+
+.badge-vengeance { background: #8b1538; color: white; }
+.badge-brutal    { background: var(--navy); color: var(--gold-light); }
+
+.checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  line-height: 1.4;
+}
+.checkbox-row input { width: 20px; height: 20px; margin-top: 2px; accent-color: #8b1538; flex-shrink: 0; }
+
+/* 13 – Vengeance */
+.number-grid .num-btn:nth-child(14) { --num-color: #1f3fa8; }
+
+.num-btn .num-tag {
+  position: absolute;
+  bottom: 1px; left: 0; right: 0;
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* Modificateurs négatifs – rouge, style carte Vengeance */
+.minus-btn {
+  background: #e23a3a;
+  color: white;
+  border-color: #6b0f0f;
+  box-shadow: 0 3px 0 #6b0f0f;
+}
+.minus-btn.selected {
+  background: #6b0f0f;
+  color: var(--gold-light);
+  border-color: #3d0606;
+  box-shadow: 0 2px 0 #3d0606;
+}
+
+.lucky-btn { background: #d9f5df; color: #1e7a3a; border-color: #1e7a3a; box-shadow: 0 3px 0 #1e7a3a; }
+.lucky-btn.selected { background: #1e7a3a; color: white; border-color: #0f4d22; box-shadow: 0 2px 0 #0f4d22; }
+
+.score-negative { color: var(--danger) !important; }
+
+/* ══════════════════════════════════════════════
+   THÈME VENGEANCE – bleu foncé (boîte Vengeance)
+══════════════════════════════════════════════ */
+:root.theme-vengeance {
+  --teal:      #2648b0;
+  --teal-dark: #1b3487;
+  --teal-deep: #10215c;
+  --bg:        #cdd7f2;
+}
+.theme-vengeance body {
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(38,72,176,0.12) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(232,192,32,0.06) 0%, transparent 40%);
+}
+.theme-vengeance .score-preview { background: rgba(38,72,176,0.08); border-color: rgba(38,72,176,0.25); }
+.theme-vengeance input:focus,
+.theme-vengeance select:focus { box-shadow: 0 0 0 4px rgba(38,72,176,0.2); }

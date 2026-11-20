@@ -71,7 +71,10 @@ export default function History() {
                 ))}
               </div>
               <div className="game-item-info">
-                <div className="game-item-name">{game.name}</div>
+                <div className="game-item-name">
+                  {game.name}
+                  {game.variant === 'vengeance' && <span className="badge badge-vengeance" style={{ marginLeft: 8 }}>Vengeance{game.brutal ? ' · Brutal' : ''}</span>}
+                </div>
                 <div className="game-item-meta">
                   {formatDate(game.startedAt)} à {formatTime(game.startedAt)} · {game.rounds.length} tours · Objectif {game.targetScore} pts
                 </div>
